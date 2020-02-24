@@ -1,0 +1,6 @@
+framework module Pods_ZipChallenge {
+  umbrella header "Pods-ZipChallenge-umbrella.h"
+
+  export *
+  module * { export * }
+}
