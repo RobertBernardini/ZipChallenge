@@ -11,34 +11,37 @@ import RxSwift
 import RxCocoa
 
 protocol StockDetailService {
-    func fetchPrices(for stocks: [StockModel]) -> Observable<[StockModel]>
+    func fetchPrice(for stock: StockModel) -> Observable<StockModel>
     func fetchPriceHistory(for stock: StockModel) -> Observable<[StockDetailHistorical]>
-    func save(stocks: [StockModel]) -> Observable<Void>
+    func save(stock: StockModel)
 }
 
 class ZipStockDetailService {
     private let dataRepository: DataRepository
+    private let cacheRepository: CacheRepository
     private let apiRepository: APIRepository
     
-    init(dataRepository: DataRepository, apiRepository: APIRepository) {
+    init(
+        dataRepository: DataRepository,
+        cacheRepository: CacheRepository,
+        apiRepository: APIRepository
+    ) {
         self.dataRepository = dataRepository
+        self.cacheRepository = cacheRepository
         self.apiRepository = apiRepository
     }
 }
 
 extension ZipStockDetailService: StockDetailService {
-    func fetchPrices(for stocks: [StockModel]) -> Observable<[StockModel]> {
-        let symbols = stocks.map({ $0.symbol })
-        let pricesEndpoint = Endpoint.stockPriceList(stocks: symbols)
+    func fetchPrice(for stock: StockModel) -> Observable<StockModel> {
+        let pricesEndpoint = Endpoint.stockPriceList(stocks: [stock.symbol])
         return apiRepository.fetch(type: StockPriceList.self, at: pricesEndpoint)
-            .map({ priceList -> [StockModel] in
-                let priceModels = priceList.prices
-                let updatedStocks: [StockModel] = priceModels.compactMap({ priceModel in
-                    guard var stock = stocks.first(where: { $0.symbol == priceModel.symbol }) else { return nil }
-                    stock.price = priceModel.price
-                    return stock
-                })
-                return updatedStocks
+            .map({ [weak self] priceList -> StockModel in
+                guard let priceModel = priceList.prices.first else { return stock }
+                var updatedStock = stock
+                updatedStock.update(price: priceModel.price)
+                self?.cacheRepository.update(stocks: [updatedStock])
+                return updatedStock
             })
             .asObservable()
     }
@@ -55,8 +58,7 @@ extension ZipStockDetailService: StockDetailService {
             .asObservable()
     }
     
-    func save(stocks: [StockModel]) -> Observable<Void> {
-        return dataRepository.save(stocks)
-            .asObservable()
+    func save(stock: StockModel) {
+        dataRepository.save([stock])
     }
 }

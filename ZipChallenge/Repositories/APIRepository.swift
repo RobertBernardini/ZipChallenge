@@ -74,7 +74,11 @@ class ZipAPIRepository: APIRepository {
         return manager.rx.request(urlRequest: request)
             .validate(statusCode: 200..<300)
             .data()
-            .map { try JSONDecoder().decode(T.self, from: $0) }
+            .map {
+                let decoder = JSONDecoder()
+                decoder.dateDecodingStrategy = .iso8601
+                return try decoder.decode(T.self, from: $0)
+            }
             .asSingle()
     }
 }

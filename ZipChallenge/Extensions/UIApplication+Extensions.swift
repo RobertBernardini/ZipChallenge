@@ -13,11 +13,11 @@ extension UIApplication {
     static var appVersion: String {
         let appVersion = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? ""
         let build = Bundle.main.infoDictionary?["CFBundleVersion"] as? String ?? ""
-        return "Version \(appVersion) (\(build))"        
+        return "\(appVersion) (\(build))"        
     }
     
     static func set(darkMode: Bool) {
-        let interfaceStyle: UIUserInterfaceStyle = darkMode == true ? .dark : .light
+        let interfaceStyle: UIUserInterfaceStyle = darkMode ? .dark : .light
         self.shared.windows.forEach({ $0.overrideUserInterfaceStyle = interfaceStyle })
     }
 }

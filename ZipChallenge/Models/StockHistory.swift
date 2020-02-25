@@ -10,19 +10,19 @@ import Foundation
 
 struct StockHistory {
     struct StockHistoricalMoment {
-        let date: String
-        let open: Decimal
-        let close: Decimal
-        let adjClose: Decimal
-        let high: Decimal
-        let low: Decimal
+        let date: Date
+        let open: Double
+        let close: Double
+        let adjClose: Double
+        let high: Double
+        let low: Double
         let volume: Int
         let unadjustedVolume: Int
-        let change: Decimal
-        let changePercent: Decimal
-        let vwap: Decimal
+        let change: Double
+        let changePercent: Double
+        let vwap: Double
         let label: String
-        let changeOverTime: Decimal
+        let changeOverTime: Double
     }
     
     let symbol: String
@@ -39,7 +39,6 @@ extension StockHistory: Decodable {
 extension StockHistory.StockHistoricalMoment: Decodable {}
 
 extension StockHistory.StockHistoricalMoment: StockDetailHistorical {
-    var stockPrice: Decimal {
-        return close
-    }
+    var stockDate: Date { date }
+    var stockPrice: Double { close }
 }

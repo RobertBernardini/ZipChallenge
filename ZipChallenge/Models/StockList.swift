@@ -13,7 +13,7 @@ struct StockList {
     struct Stock {
         let symbol: String
         let name: String?
-        let price: Decimal
+        let price: Double
         let exchange: String?
     }
     

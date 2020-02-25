@@ -7,26 +7,45 @@
 //
 
 import Foundation
+import RxSwift
+import RxCocoa
 
-protocol SettingsViewModel {
+protocol SettingsViewModelInputs {
+    var setDarkMode: PublishRelay<Bool> { get }
+}
+
+protocol SettingsViewModelOutputs {
     var version: String { get }
     var isDarkMode: Bool { get }
-    
-    func set(darkMode: Bool)
+}
+
+protocol SettingsViewModel {
+    var inputs: SettingsViewModelInputs { get }
+    var outputs: SettingsViewModelOutputs { get }
 }
 
 class ZipSettingsViewModel {
-    private let service: SettingsService
+    var inputs: SettingsViewModelInputs { self }
+    var outputs: SettingsViewModelOutputs { self }
+    
+    // Inputs
+    let setDarkMode = PublishRelay<Bool>()
+    
+    // Outputs
     var version: String { service.version }
     var isDarkMode: Bool { service.isDarkMode }
+    
+    private let service: SettingsService
+    private let bag = DisposeBag()
 
     init(service: SettingsService) {
         self.service = service
+        setDarkMode
+            .subscribe(onNext: { service.set(darkMode: $0) })
+            .disposed(by: bag)
     }
 }
 
-extension ZipSettingsViewModel: SettingsViewModel {
-    func set(darkMode: Bool) {
-        service.set(darkMode: darkMode)
-    }
-}
+extension ZipSettingsViewModel: SettingsViewModel {}
+extension ZipSettingsViewModel: SettingsViewModelInputs {}
+extension ZipSettingsViewModel: SettingsViewModelOutputs {}

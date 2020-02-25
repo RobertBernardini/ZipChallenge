@@ -11,7 +11,7 @@ import Foundation
 struct StockPriceList {
     struct StockPrice {
         let symbol: String
-        let price: Decimal
+        let price: Double
     }
 
     let prices: [StockPrice]

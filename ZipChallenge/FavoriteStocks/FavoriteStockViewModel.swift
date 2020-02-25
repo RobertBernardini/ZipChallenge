@@ -10,65 +10,95 @@ import Foundation
 import RxSwift
 import RxCocoa
 
-protocol FavoriteStockViewModel {
-    typealias favoriteTuple = (symbol: String, isFavorite: Bool)
+protocol FavoriteStockViewModelInputs {
+    var startUpdates: PublishRelay<Void> { get }
+    var stopUpdatesAndSave: PublishRelay<[StockModel]> { get }
+    var fetchFavoriteStocks: PublishRelay<Void> { get }
+    var fetchPrices: PublishRelay<Void> { get }
+    var setAsFavoriteStock: PublishRelay<StockModel> { get }
+    var stockSelected: PublishRelay<StockModel> { get }
+}
 
-    // Inputs
-//    var startTimer: PublishRelay<Void> { get }
-//    var stopTimer: PublishRelay<Void> { get }
-//    var saveStocks: PublishRelay<Void> { get }
-//    var setAsFavoriteStock: PublishRelay<favoriteTuple> { get }
-//    var selectedStock: PublishRelay<StockModel> { get }
-//    
-//    // Outputs
-//    var stocks: BehaviorRelay<[StockModel]> { get }
-//    var priceUpdatedStocks: Observable<[StockModel]> { get }
-//    var updatedStock: Observable<StockModel> { get }
-//    var showDetail: Observable<StockModel> { get }
+protocol FavoriteStockViewModelOutputs {
+    var favoriteStocks: Driver<[StockModel]> { get }
+    var updatedStock: Driver<StockModel> { get }
+    var showDetail: Driver<StockModel> { get }
+}
+
+protocol FavoriteStockViewModel {
+    var inputs: FavoriteStockViewModelInputs { get }
+    var outputs: FavoriteStockViewModelOutputs { get }
 }
 
 class ZipFavoriteStockViewModel {
+    var inputs: FavoriteStockViewModelInputs { self }
+    var outputs: FavoriteStockViewModelOutputs { self }
+    
     // Inputs
-    var startTimer = PublishRelay<Void>()
-    var stopTimer = PublishRelay<Void>()
-    var saveStocks = PublishRelay<Void>()
-    var setAsFavoriteStock = PublishRelay<favoriteTuple>()
-    var selectedStock = PublishRelay<StockModel>()
+    let startUpdates = PublishRelay<Void>()
+    let stopUpdatesAndSave = PublishRelay<[StockModel]>()
+    let fetchFavoriteStocks = PublishRelay<Void>()
+    let fetchPrices = PublishRelay<Void>()
+    let setAsFavoriteStock = PublishRelay<StockModel>()
+    let stockSelected = PublishRelay<StockModel>()
     
     // Outputs
-    var stocks: BehaviorRelay<[StockModel]>
-    var priceUpdatedStocks: Observable<[StockModel]>
-    var updatedStock: Observable<StockModel>
-    var showDetail: Observable<StockModel>
+    let favoriteStocks: Driver<[StockModel]>
+    let updatedStock: Driver<StockModel>
+    let showDetail: Driver<StockModel>
     
     private let service: FavoriteStockService
-    private let disposeBag = DisposeBag()
+    private let bag = DisposeBag()
     
     init(service: FavoriteStockService) {
         self.service = service
         
+        let fetchPrices = self.fetchPrices
+        var timer: Timer? = nil
+            
+        self.startUpdates
+            .asDriver(onErrorJustReturn: ())
+            .drive(onNext: {
+                timer = Timer.scheduledTimer(withTimeInterval: 15, repeats: true) { _ in
+                    fetchPrices.accept(())
+                }
+            })
+            .disposed(by: bag)
         
+        self.stopUpdatesAndSave
+            .asDriver(onErrorJustReturn: [])
+            .drive(onNext: {
+                timer?.invalidate()
+                timer = nil
+                service.save(stocks: $0)
+            })
+            .disposed(by: bag)
+        
+        let updatedStocks = self.fetchPrices
+            .flatMap({ _ -> Observable<[StockModel]> in
+                let stocks = service.cachedFavoriteStock
+                return service.fetchPrices(for: stocks)
+            })
+        
+        let cachedStocks = self.fetchFavoriteStocks
+            .flatMap({ _ -> Observable<[StockModel]> in
+                Observable.just(service.cachedFavoriteStock)
+            })
 
-//        self.updatedStock = self.setAsFavoriteStock
-//            .map({ [unowned self] tuple -> StockModel? in
-//                let stocks = self.stocks.value
-//                var favoriteStock = stocks.first(where: { $0.symbol == tuple.symbol })
-//                favoriteStock?.isFavorite = true
-//                return favoriteStock
-//            })
-//            .flatMap({ [weak self] favoriteStock -> Observable<StockModel> in
-//                guard let favoriteStock = favoriteStock else { return Observable.error(ViewModelError.nilStock) }
-//                return service.update(stock: favoriteStock)
-//                    .map({
-//                        if var stocks = self?.stocks.value,
-//                            let index = stocks.firstIndex(where: { $0.symbol == favoriteStock.symbol }) {
-//                            stocks[index].isFavorite = true
-//                            self?.stocks.accept(stocks)
-//                        }
-//                        return favoriteStock
-//                    })
-//            })
+        self.favoriteStocks = Observable
+            .merge([cachedStocks, updatedStocks])
+            .asDriver(onErrorJustReturn: [])
+        
+        self.updatedStock = self.setAsFavoriteStock
+            .flatMap({ stock -> Observable<StockModel> in
+                return service.update(stock: stock)
+            })
+            .asDriver(onErrorDriveWith: .empty())
+            
+        self.showDetail = stockSelected.asDriver(onErrorDriveWith: .empty())
     }
 }
 
 extension ZipFavoriteStockViewModel: FavoriteStockViewModel {}
+extension ZipFavoriteStockViewModel: FavoriteStockViewModelInputs {}
+extension ZipFavoriteStockViewModel: FavoriteStockViewModelOutputs {}

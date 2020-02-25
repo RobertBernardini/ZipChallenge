@@ -10,55 +10,77 @@ import Foundation
 import RxSwift
 import RxCocoa
 
-protocol StockViewModel {
-    // Inputs
-    var fetchSavedStocks: PublishRelay<Void> { get }
+protocol StockViewModelInputs {
+    var initialiseData: PublishRelay<Void> { get }
+    var fetchCachedStocks: PublishRelay<Void> { get }
     var fetchStocks: PublishRelay<Void> { get }
     var setAsFavoriteStock: PublishRelay<StockModel> { get }
-    var selectedStock: PublishRelay<StockModel> { get }
-    
-    // Outputs
+    var stockSelected: PublishRelay<StockModel> { get }
+}
+
+protocol StockViewModelOutputs {
+    var dataInitialised: Observable<Void> { get }
     var stocks: Observable<[StockModel]> { get }
     var updatedStock: Observable<StockModel> { get }
-    var showDetail: Observable<StockModel> { get }
+    var showDetail: Driver<StockModel> { get }
+}
+
+
+protocol StockViewModel {
+    var inputs: StockViewModelInputs { get }
+    var outputs: StockViewModelOutputs { get }
 }
 
 class ZipStockViewModel {
+    var inputs: StockViewModelInputs { self }
+    var outputs: StockViewModelOutputs { self }
+    
     // Inputs
-    var fetchSavedStocks = PublishRelay<Void>()
-    var fetchStocks = PublishRelay<Void>()
-    var setAsFavoriteStock = PublishRelay<StockModel>()
-    var selectedStock = PublishRelay<StockModel>()
+    let initialiseData = PublishRelay<Void>()
+    let fetchCachedStocks = PublishRelay<Void>()
+    let fetchStocks = PublishRelay<Void>()
+    let setAsFavoriteStock = PublishRelay<StockModel>()
+    let stockSelected = PublishRelay<StockModel>()
     
     // Outputs
-    var stocks: Observable<[StockModel]>
-    var updatedStock: Observable<StockModel>
-    var showDetail: Observable<StockModel>
+    let dataInitialised: Observable<Void>
+    let stocks: Observable<[StockModel]>
+    let updatedStock: Observable<StockModel>
+    let showDetail: Driver<StockModel>
     
     private let service: StockService
-    private let disposeBag = DisposeBag()
+    private let bag = DisposeBag()
     
     init(service: StockService) {
         self.service = service
+        self.dataInitialised = self.initialiseData
+            .flatMap({
+                service.initialiseData()
+            })
         
-        let apiStocks = self.fetchStocks
+        let updatedStocks = self.fetchStocks
             .flatMap({ _ -> Observable<[StockModel]> in
                 service.fetchStocks()
             })
         
-        let savedStocks = self.fetchSavedStocks
+        let cachedStocks = self.fetchCachedStocks
             .flatMap({ _ -> Observable<[StockModel]> in
-                service.fetchSavedStocks()
+                Observable.just(service.cachedStock)
             })
 
-        let fetchedStocks = Observable.merge([savedStocks, apiStocks])
-
+        self.stocks = Observable
+            .merge([cachedStocks, updatedStocks])
         
-        self.fetchedStocks = fetchedStocks
-
         self.updatedStock = self.setAsFavoriteStock
+            .flatMap({ stock -> Observable<StockModel> in
+                service.update(stock: stock)
+                return Observable.just(stock)
+            })
             
+        self.showDetail = stockSelected.asDriver(onErrorDriveWith: .empty())
     }
 }
 
 extension ZipStockViewModel: StockViewModel {}
+extension ZipStockViewModel: StockViewModelInputs {}
+extension ZipStockViewModel: StockViewModelOutputs {}

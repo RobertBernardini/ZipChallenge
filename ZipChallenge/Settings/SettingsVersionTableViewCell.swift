@@ -12,9 +12,7 @@ class SettingsVersionTableViewCell: UITableViewCell {
     @IBOutlet var versionLabel: UILabel!
 
     var version: String? {
-        didSet {
-            updateView()
-        }
+        didSet { updateView() }
     }
     
     func updateView() {

@@ -28,15 +28,12 @@ final class SettingsViewController: UIViewController {
     
     func configureUserInterface() {
         navigationItem.title = "Settings"
-        tableView.rowHeight = UITableView.automaticDimension
-        tableView.estimatedRowHeight = 40
+        navigationController?.navigationBar.prefersLargeTitles = true
         tableView.dataSource = self
-        tableView.register(SettingsDarkModeTableViewCell.self, forCellReuseIdentifier: Constants.darkModeCellIdentifier)
-        tableView.register(SettingsVersionTableViewCell.self, forCellReuseIdentifier: Constants.versionCellIdentifier)
+        tableView.rowHeight = 60
     }
 }
 
-// No Binding or Rx is needed here so setting up the tableview the tradional way
 extension SettingsViewController: UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return 2
@@ -47,16 +44,20 @@ extension SettingsViewController: UITableViewDataSource {
         case 0:
             guard let cell = tableView.dequeueReusableCell(
                 withIdentifier: Constants.darkModeCellIdentifier,
-                for: indexPath) as? SettingsDarkModeTableViewCell else { return UITableViewCell() }
+                for: indexPath) as? SettingsDarkModeTableViewCell else {
+                    return UITableViewCell()
+            }
             cell.delegate = self
-            cell.isDarkMode = viewModel.isDarkMode
+            cell.isDarkMode = viewModel.outputs.isDarkMode
             cell.selectionStyle = .none
             return cell
         case 1:
             guard let cell = tableView.dequeueReusableCell(
                 withIdentifier: Constants.versionCellIdentifier,
-                for: indexPath) as? SettingsVersionTableViewCell else { return UITableViewCell() }
-            cell.version = viewModel.version
+                for: indexPath) as? SettingsVersionTableViewCell else {
+                    return UITableViewCell()
+            }
+            cell.version = viewModel.outputs.version
             cell.selectionStyle = .none
             return cell
         default: return UITableViewCell()
@@ -66,7 +67,7 @@ extension SettingsViewController: UITableViewDataSource {
 
 extension SettingsViewController: SettingsDarkModeTableViewCellDelegate {
     func settingsDarkModeTableViewCell(_ cell: SettingsDarkModeTableViewCell, didUpdateDarkMode isDarkMode: Bool) {
-        viewModel.set(darkMode: isDarkMode)
+        viewModel.inputs.setDarkMode.accept(isDarkMode)
     }
 }
 

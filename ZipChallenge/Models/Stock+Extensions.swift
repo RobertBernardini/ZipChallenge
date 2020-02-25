@@ -16,9 +16,10 @@ extension Stock {
         lastDividend = stock.lastDividend
         name = stock.name
         percentageChange = stock.percentageChange
-        changes = stock.changes as NSDecimalNumber
-        price = stock.price as NSDecimalNumber
+        changes = stock.changes
+        price = stock.price
         sector = stock.sector
         symbol = stock.symbol
+        isFavorite = stock.isFavorite
     }
 }

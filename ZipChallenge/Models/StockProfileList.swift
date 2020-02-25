@@ -11,13 +11,13 @@ import Foundation
 struct StockProfileList  {
     struct StockProfile {
         struct StockProfileData {
-            let price: Decimal
+            let price: Double
             let beta: String
             let volAvg: String
             let mktCap: String
             let lastDiv: String
             let range: String
-            let changes: Decimal
+            let changes: Double
             let changesPercentage: String
             let companyName: String
             let exchange: String

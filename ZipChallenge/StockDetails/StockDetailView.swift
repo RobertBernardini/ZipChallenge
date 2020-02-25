@@ -22,9 +22,7 @@ class StockDetailView: UIView {
     
     typealias DisplayData = StockDetailDisplayable
     var displayData: StockDetailDisplayable? {
-        didSet {
-            updateView()
-        }
+        didSet { updateView() }
     }
     
     func updateView() {

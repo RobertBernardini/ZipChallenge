@@ -11,10 +11,10 @@ import Foundation
 protocol StockPersistable {
     var companyLogo: URL? { get }
     var percentageChange: String { get }
-    var changes: Decimal { get }
+    var changes: Double { get }
     var symbol: String { get }
     var name: String { get }
-    var price: Decimal { get }
+    var price: Double { get }
     var lastDividend: String { get }
     var sector: String { get }
     var industry: String { get }
@@ -39,5 +39,6 @@ protocol StockDetailDisplayable: StockDisplayable {
 }
 
 protocol StockDetailHistorical {
-    var stockPrice: Decimal { get }
+    var stockDate: Date { get }
+    var stockPrice: Double { get }
 }

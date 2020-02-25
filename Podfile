@@ -6,10 +6,10 @@ target 'ZipChallenge' do
   use_frameworks!
 
   # Pods for ZipChallenge
-  pod 'RxSwift', '~> 5'
-  pod 'RxCocoa', '~> 5'
-  pod 'RxAlamofire', '~> 5'
-  pod 'Kingfisher', '~> 5'
+  pod 'RxSwift', '~>5'
+  pod 'RxCocoa', '~>5'
+  pod 'RxAlamofire', '~>5'
+  pod 'Kingfisher', '~>5'
   pod 'Charts'
 
   target 'ZipChallengeTests' do

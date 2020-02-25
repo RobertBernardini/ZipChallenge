@@ -18,9 +18,7 @@ class SettingsDarkModeTableViewCell: UITableViewCell {
     weak var delegate: SettingsDarkModeTableViewCellDelegate?
     
     var isDarkMode: Bool = false {
-        didSet {
-            darkModeSwitch.setOn(isDarkMode, animated: false)
-        }
+        didSet { darkModeSwitch.setOn(isDarkMode, animated: false) }
     }
         
     @IBAction func didTapSwitch(_ sender: UISwitch) {

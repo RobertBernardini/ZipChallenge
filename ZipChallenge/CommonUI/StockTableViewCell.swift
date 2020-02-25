@@ -1,5 +1,5 @@
 //
-//  FavoriteStockTableViewCell.swift
+//  StocksTableViewCell.swift
 //  ZipChallenge
 //
 //  Created by Robert Bernardini on 24/2/20.
@@ -9,11 +9,20 @@
 import UIKit
 import Kingfisher
 
-protocol FavoriteStockTableViewCellDelegate: AnyObject {
-    func favoriteStockTableViewCell(_ cell: FavoriteStockTableViewCell, didUpdateFavorite isFavorite: Bool)
+protocol StockTableViewCellDelegate: AnyObject {
+    func stockTableViewCell(
+        _ cell: StockTableViewCell,
+        didSetStockWithSymbol symbol: String,
+        asFavorite isFavorite: Bool
+    )
 }
 
-class FavoriteStockTableViewCell: UITableViewCell {
+class StockTableViewCell: UITableViewCell {
+    enum Constants {
+        static let stockCellName = "StockTableViewCell"
+        static let stockCellIdentifier = "StockCell"
+    }
+    
     @IBOutlet var logoImage: UIImageView!
     @IBOutlet var symbolLabel: UILabel!
     @IBOutlet var nameLabel: UILabel!
@@ -22,13 +31,17 @@ class FavoriteStockTableViewCell: UITableViewCell {
     @IBOutlet var percentageChangeView: UIView!
     @IBOutlet var favoriteButton: UIButton!
     
-    weak var delegate: FavoriteStockTableViewCellDelegate?
+    weak var delegate: StockTableViewCellDelegate?
     
     typealias DisplayData = StockDisplayable
     var displayData: StockDisplayable? {
-        didSet {
-            updateView()
-        }
+        didSet { updateView() }
+    }
+    
+    override func awakeFromNib() {
+        super.awakeFromNib()
+        percentageChangeView.layer.cornerRadius = 5
+        logoImage.layer.cornerRadius = 5
     }
     
     func updateView() {
@@ -52,8 +65,10 @@ class FavoriteStockTableViewCell: UITableViewCell {
     }
     
     @IBAction func didTapFavorite(_ sender: UIButton) {
-        delegate?.favoriteStockTableViewCell(self, didUpdateFavorite: sender.isSelected)
+        sender.isSelected = !sender.isSelected
+        let symbol = displayData?.stockSymbol ?? ""
+        delegate?.stockTableViewCell(self, didSetStockWithSymbol: symbol, asFavorite: sender.isSelected)
     }
 }
 
-extension FavoriteStockTableViewCell: ViewDisplayable {}
+extension StockTableViewCell: ViewDisplayable {}
