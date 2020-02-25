@@ -48,7 +48,14 @@ extension ZipStockService: StockService {
         let stocksEndpoint = Endpoint.stockList
         return apiRepository.fetch(type: StockList.self, at: stocksEndpoint)
             .map({ [weak self] stockList -> [StockModel] in
-                stockList.stocks.map({ StockModel(stock: $0) })
+                var stocks = stockList.stocks.map({ StockModel(stock: $0) })
+                let favoriteStocks = self?.cacheRepository.cachedFavoriteStocks
+                favoriteStocks?.forEach({ favoriteStock in
+                    if let index = stocks.firstIndex(where: { $0.symbol == favoriteStock.symbol }) {
+                        stocks[index].update(isFavorite: true)
+                    }
+                })
+                return stocks
             })
             .asObservable()
             .materialize()
