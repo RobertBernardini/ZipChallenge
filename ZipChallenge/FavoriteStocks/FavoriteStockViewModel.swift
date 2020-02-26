@@ -14,14 +14,15 @@ protocol FavoriteStockViewModelInputs {
     var startUpdates: PublishRelay<Void> { get }
     var stopUpdatesAndSave: PublishRelay<[StockModel]> { get }
     var fetchFavoriteStocks: PublishRelay<Void> { get }
-    var fetchPrices: PublishRelay<Void> { get }
-    var setAsFavoriteStock: PublishRelay<StockModel> { get }
+//    var fetchPrices: PublishRelay<Void> { get }
+    var removeFromFavoriteStock: PublishRelay<StockModel> { get }
     var stockSelected: PublishRelay<StockModel> { get }
 }
 
 protocol FavoriteStockViewModelOutputs {
-    var favoriteStocks: Driver<[StockModel]> { get }
-    var updatedStock: Driver<StockModel> { get }
+    var favoriteStocks: Observable<[StockModel]> { get }
+    var updatedStocks: Observable<[StockModel]> { get }
+    var removedStock: Observable<StockModel> { get }
     var showDetail: Driver<StockModel> { get }
 }
 
@@ -38,13 +39,14 @@ class ZipFavoriteStockViewModel {
     let startUpdates = PublishRelay<Void>()
     let stopUpdatesAndSave = PublishRelay<[StockModel]>()
     let fetchFavoriteStocks = PublishRelay<Void>()
-    let fetchPrices = PublishRelay<Void>()
-    let setAsFavoriteStock = PublishRelay<StockModel>()
+//    let fetchPrices = PublishRelay<Void>()
+    let removeFromFavoriteStock = PublishRelay<StockModel>()
     let stockSelected = PublishRelay<StockModel>()
     
     // Outputs
-    let favoriteStocks: Driver<[StockModel]>
-    let updatedStock: Driver<StockModel>
+    let favoriteStocks: Observable<[StockModel]>
+    let updatedStocks: Observable<[StockModel]>
+    let removedStock: Observable<StockModel>
     let showDetail: Driver<StockModel>
     
     private let service: FavoriteStockService
@@ -53,11 +55,11 @@ class ZipFavoriteStockViewModel {
     init(service: FavoriteStockService) {
         self.service = service
         
-        let fetchPrices = self.fetchPrices
+        let fetchPrices = PublishRelay<Void>()
         var timer: Timer? = nil
             
         self.startUpdates
-            .asDriver(onErrorJustReturn: ())
+            .asDriver(onErrorDriveWith: .empty())
             .drive(onNext: {
                 timer = Timer.scheduledTimer(withTimeInterval: 15, repeats: true) { _ in
                     fetchPrices.accept(())
@@ -66,7 +68,7 @@ class ZipFavoriteStockViewModel {
             .disposed(by: bag)
         
         self.stopUpdatesAndSave
-            .asDriver(onErrorJustReturn: [])
+            .asDriver(onErrorDriveWith: .empty())
             .drive(onNext: {
                 timer?.invalidate()
                 timer = nil
@@ -74,26 +76,23 @@ class ZipFavoriteStockViewModel {
             })
             .disposed(by: bag)
         
-        let updatedStocks = self.fetchPrices
-            .flatMap({ _ -> Observable<[StockModel]> in
-                let stocks = service.cachedFavoriteStock
-                return service.fetchPrices(for: stocks)
-            })
-        
-        let cachedStocks = self.fetchFavoriteStocks
+        self.favoriteStocks = self.fetchFavoriteStocks
             .flatMap({ _ -> Observable<[StockModel]> in
                 Observable.just(service.cachedFavoriteStock)
             })
-
-        self.favoriteStocks = Observable
-            .merge([cachedStocks, updatedStocks])
-            .asDriver(onErrorJustReturn: [])
         
-        self.updatedStock = self.setAsFavoriteStock
-            .flatMap({ stock -> Observable<StockModel> in
-                return service.update(stock: stock)
+        self.updatedStocks = fetchPrices
+            .flatMap({ _ -> Observable<[StockModel]> in
+                let stocks = service.cachedFavoriteStock
+                return service.fetchPrices(for: stocks)
+                    .asObservable()
             })
-            .asDriver(onErrorDriveWith: .empty())
+        
+        self.removedStock = self.removeFromFavoriteStock
+            .flatMap({ stock -> Observable<StockModel> in
+                return service.removeFromFavorite(stock: stock)
+                    .asObservable()
+            })
             
         self.showDetail = stockSelected.asDriver(onErrorDriveWith: .empty())
     }

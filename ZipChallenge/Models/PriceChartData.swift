@@ -8,21 +8,23 @@
 
 import Foundation
 
-enum PriceChartDuration: CaseIterable {
+enum PriceChartPeriod {
     case threeMonths
     case sixMonths
     case oneYear
     case threeYears
-    
-    static let title = "Price Duration Periods"
-    static let message = "Please choose an option to see the fluctuations for that period."
-    
-    var message: String {
+}
+
+extension PriceChartPeriod {
+    static let title = "Stock Price Period"
+    static let message = "Please choose an option to see the stock price for that period."
+        
+    var text: String {
         switch self {
-        case .threeMonths: return "Last 3 Months"
-        case .sixMonths: return "Last 6 Months"
-        case .oneYear: return "Last Year"
-        case .threeYears: return "Last 3 Years"
+        case .threeMonths: return "3 Months"
+        case .sixMonths: return "6 Months"
+        case .oneYear: return "1 Year"
+        case .threeYears: return "3 Years"
         }
     }
     
@@ -38,12 +40,14 @@ enum PriceChartDuration: CaseIterable {
     }
 }
 
+extension PriceChartPeriod: CaseIterable {}
+
 protocol PriceChartDisplayable {
-    var duration: PriceChartDuration { get }
+    var duration: PriceChartPeriod { get }
     var historicalPrices: [StockDetailHistorical] { get }
 }
 
 struct PriceChartData: PriceChartDisplayable {
-    var duration: PriceChartDuration
+    var duration: PriceChartPeriod
     var historicalPrices: [StockDetailHistorical]
 }

@@ -35,15 +35,6 @@ extension StockModel {
         self.sector = ""
         self.industry = ""
     }
-    
-    mutating func update(with stockProfile: StockProfileList.StockProfile) {
-        companyLogo = URL(string: stockProfile.data.image)
-        percentageChange = stockProfile.data.changesPercentage
-        changes = stockProfile.data.changes
-        lastDividend = stockProfile.data.lastDiv
-        sector = stockProfile.data.sector
-        industry = stockProfile.data.industry
-    }
 }
 
 extension StockModel {
@@ -62,6 +53,28 @@ extension StockModel {
 }
 
 extension StockModel {
+    mutating func update(with stockProfile: StockProfileList.StockProfile) {
+        companyLogo = URL(string: stockProfile.data.image)
+        percentageChange = stockProfile.data.changesPercentage
+        changes = stockProfile.data.changes
+        lastDividend = stockProfile.data.lastDiv
+        sector = stockProfile.data.sector
+        industry = stockProfile.data.industry
+    }
+    
+    mutating func update(with stockModel: StockModel) {
+        symbol = stockModel.symbol
+        name = stockModel.name
+        price = stockModel.price
+        companyLogo = stockModel.companyLogo
+        percentageChange = stockModel.percentageChange
+        changes = stockModel.changes
+        lastDividend = stockModel.lastDividend
+        sector = stockModel.sector
+        industry = stockModel.industry
+        isFavorite = stockModel.isFavorite
+    }
+    
     mutating func update(price: Double) {
         self.price = price
     }
@@ -91,4 +104,10 @@ extension StockModel: StockDetailDisplayable {
     var stockLastDividend: String { lastDividend }
     var stockSector: String { sector }
     var stockIndustry: String { industry }
+}
+
+extension StockModel: Equatable {
+    static func ==(lhs: StockModel, rhs: StockModel) -> Bool {
+        return lhs.symbol == rhs.symbol
+    }
 }

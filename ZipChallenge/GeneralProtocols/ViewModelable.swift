@@ -23,8 +23,6 @@ extension ViewModelable {
     func bindUserInterface() {}
     
     static func instantiate(with viewModel: ViewModel) -> Self {
-        //        let fullName = NSStringFromClass(self)
-        //        let className = fullName.components(separatedBy: ".")[1]
         let className = String(describing: self)
         let storyboard = UIStoryboard(name: "Main", bundle: Bundle.main)
         guard var viewController = storyboard.instantiateViewController(withIdentifier: className) as? Self else {

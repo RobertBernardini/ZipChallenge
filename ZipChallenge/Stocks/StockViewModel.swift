@@ -14,6 +14,7 @@ protocol StockViewModelInputs {
     var initialiseData: PublishRelay<Void> { get }
     var fetchCachedStocks: PublishRelay<Void> { get }
     var fetchStocks: PublishRelay<Void> { get }
+    var fetchProfiles: PublishRelay<[StockModel]> { get }
     var setAsFavoriteStock: PublishRelay<StockModel> { get }
     var stockSelected: PublishRelay<StockModel> { get }
 }
@@ -21,10 +22,10 @@ protocol StockViewModelInputs {
 protocol StockViewModelOutputs {
     var dataInitialised: Observable<Void> { get }
     var stocks: Observable<[StockModel]> { get }
-    var updatedStock: Observable<StockModel> { get }
+    var updatedStocks: Observable<[StockModel]> { get }
+    var favoriteStock: Observable<StockModel> { get }
     var showDetail: Driver<StockModel> { get }
 }
-
 
 protocol StockViewModel {
     var inputs: StockViewModelInputs { get }
@@ -39,13 +40,15 @@ class ZipStockViewModel {
     let initialiseData = PublishRelay<Void>()
     let fetchCachedStocks = PublishRelay<Void>()
     let fetchStocks = PublishRelay<Void>()
+    let fetchProfiles = PublishRelay<[StockModel]>()
     let setAsFavoriteStock = PublishRelay<StockModel>()
     let stockSelected = PublishRelay<StockModel>()
     
     // Outputs
     let dataInitialised: Observable<Void>
     let stocks: Observable<[StockModel]>
-    let updatedStock: Observable<StockModel>
+    let updatedStocks: Observable<[StockModel]>
+    let favoriteStock: Observable<StockModel>
     let showDetail: Driver<StockModel>
     
     private let service: StockService
@@ -61,6 +64,7 @@ class ZipStockViewModel {
         let updatedStocks = self.fetchStocks
             .flatMap({ _ -> Observable<[StockModel]> in
                 service.fetchStocks()
+                    .asObservable()
             })
         
         let cachedStocks = self.fetchCachedStocks
@@ -71,7 +75,13 @@ class ZipStockViewModel {
         self.stocks = Observable
             .merge([cachedStocks, updatedStocks])
         
-        self.updatedStock = self.setAsFavoriteStock
+        self.updatedStocks = self.fetchProfiles
+            .flatMap({ stocks -> Observable<[StockModel]> in
+                service.fetchStockProfiles(for: stocks)
+                    .asObservable()
+            })
+        
+        self.favoriteStock = self.setAsFavoriteStock
             .flatMap({ stock -> Observable<StockModel> in
                 service.update(stock: stock)
                 return Observable.just(stock)

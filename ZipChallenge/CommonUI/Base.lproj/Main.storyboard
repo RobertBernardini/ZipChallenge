@@ -214,39 +214,42 @@
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="rqH-gd-ND8" customClass="StockDetailPriceChartView" customModule="ZipChallenge" customModuleProvider="target">
                                 <rect key="frame" x="8" y="228" width="359" height="431"/>
                                 <subviews>
-                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="[Title]" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="pf9-zs-V4C">
-                                        <rect key="frame" x="8" y="8" width="343" height="20.5"/>
+                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Stock Price History" textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="pf9-zs-V4C">
+                                        <rect key="frame" x="20" y="13" width="146" height="20.5"/>
                                         <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                         <nil key="textColor"/>
                                         <nil key="highlightedColor"/>
                                     </label>
                                     <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="iuU-rU-E4r" customClass="LineChartView" customModule="Charts">
-                                        <rect key="frame" x="0.0" y="36.5" width="359" height="345.5"/>
+                                        <rect key="frame" x="0.0" y="46" width="359" height="385"/>
                                         <color key="backgroundColor" white="0.66666666666666663" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                     </view>
-                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="0Ra-ow-sOz">
-                                        <rect key="frame" x="8" y="390" width="343" height="33"/>
+                                    <button opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="252" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="0Ra-ow-sOz">
+                                        <rect key="frame" x="266" y="8" width="73" height="30"/>
+                                        <constraints>
+                                            <constraint firstAttribute="height" constant="30" id="I8W-QT-Wau"/>
+                                        </constraints>
                                         <fontDescription key="fontDescription" type="system" pointSize="17"/>
-                                        <state key="normal" title="Change Duration"/>
+                                        <state key="normal" title="3 Months"/>
+                                        <connections>
+                                            <action selector="didTapDuration:" destination="rqH-gd-ND8" eventType="touchUpInside" id="DOi-mZ-i3q"/>
+                                        </connections>
                                     </button>
                                 </subviews>
                                 <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <constraints>
-                                    <constraint firstAttribute="trailing" secondItem="0Ra-ow-sOz" secondAttribute="trailing" constant="8" id="EEV-I0-Rq8"/>
-                                    <constraint firstItem="0Ra-ow-sOz" firstAttribute="top" secondItem="iuU-rU-E4r" secondAttribute="bottom" constant="8" id="JyO-U4-uFn"/>
-                                    <constraint firstItem="0Ra-ow-sOz" firstAttribute="leading" secondItem="rqH-gd-ND8" secondAttribute="leading" constant="8" id="KId-Eo-E40"/>
-                                    <constraint firstAttribute="bottom" secondItem="0Ra-ow-sOz" secondAttribute="bottom" constant="8" id="Qfp-0m-pT8"/>
-                                    <constraint firstItem="pf9-zs-V4C" firstAttribute="top" secondItem="rqH-gd-ND8" secondAttribute="top" constant="8" id="R5e-qg-hFW"/>
+                                    <constraint firstAttribute="bottom" secondItem="iuU-rU-E4r" secondAttribute="bottom" id="0YN-dG-abG"/>
+                                    <constraint firstItem="pf9-zs-V4C" firstAttribute="leading" secondItem="iuU-rU-E4r" secondAttribute="leading" constant="20" id="Bfp-0j-Oth"/>
+                                    <constraint firstItem="0Ra-ow-sOz" firstAttribute="centerY" secondItem="pf9-zs-V4C" secondAttribute="centerY" id="NWa-QU-Yov"/>
+                                    <constraint firstItem="0Ra-ow-sOz" firstAttribute="top" secondItem="rqH-gd-ND8" secondAttribute="top" constant="8" id="Upu-He-a4J"/>
                                     <constraint firstItem="iuU-rU-E4r" firstAttribute="leading" secondItem="rqH-gd-ND8" secondAttribute="leading" id="WfG-SO-rSJ"/>
+                                    <constraint firstAttribute="trailing" secondItem="0Ra-ow-sOz" secondAttribute="trailing" constant="20" id="ahp-h7-Hby"/>
+                                    <constraint firstItem="iuU-rU-E4r" firstAttribute="top" secondItem="0Ra-ow-sOz" secondAttribute="bottom" constant="8" id="f34-zd-Q1w"/>
                                     <constraint firstAttribute="trailing" secondItem="iuU-rU-E4r" secondAttribute="trailing" id="iHh-vB-Eor"/>
-                                    <constraint firstAttribute="trailing" secondItem="pf9-zs-V4C" secondAttribute="trailing" constant="8" id="qQj-0s-NQa"/>
-                                    <constraint firstItem="pf9-zs-V4C" firstAttribute="leading" secondItem="rqH-gd-ND8" secondAttribute="leading" constant="8" id="sFt-7V-7Vy"/>
-                                    <constraint firstItem="iuU-rU-E4r" firstAttribute="top" secondItem="pf9-zs-V4C" secondAttribute="bottom" constant="8" id="sQY-ta-HMI"/>
                                 </constraints>
                                 <connections>
                                     <outlet property="durationButton" destination="0Ra-ow-sOz" id="9lZ-dP-hb7"/>
                                     <outlet property="lineChartView" destination="iuU-rU-E4r" id="Z3o-2c-Glz"/>
-                                    <outlet property="titleLabel" destination="pf9-zs-V4C" id="Ltl-jA-XAj"/>
                                 </connections>
                             </view>
                         </subviews>

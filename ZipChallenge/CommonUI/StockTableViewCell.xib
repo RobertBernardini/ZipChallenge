@@ -94,13 +94,13 @@
                                             <constraint firstAttribute="trailing" secondItem="OOW-PQ-pA8" secondAttribute="trailing" constant="4" id="gch-b6-qfU"/>
                                         </constraints>
                                     </view>
-                                    <button opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" verticalHuggingPriority="252" verticalCompressionResistancePriority="751" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="DLf-g2-h1H">
+                                    <button opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" verticalHuggingPriority="252" verticalCompressionResistancePriority="751" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="DLf-g2-h1H">
                                         <rect key="frame" x="22" y="81" width="44" height="40"/>
                                         <constraints>
                                             <constraint firstAttribute="width" constant="44" id="9zM-gx-3oM"/>
                                             <constraint firstAttribute="height" constant="40" id="feM-4N-EXU"/>
                                         </constraints>
-                                        <color key="tintColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                        <color key="tintColor" systemColor="systemBlueColor" red="0.0" green="0.47843137250000001" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                         <state key="normal" image="favorites"/>
                                         <state key="selected" image="favorites_selected"/>
                                         <connections>

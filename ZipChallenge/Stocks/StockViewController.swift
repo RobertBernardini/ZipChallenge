@@ -10,15 +10,12 @@ import UIKit
 import RxSwift
 import RxCocoa
 
-final class StockViewController: UIViewController {
-    @IBOutlet var tableView: UITableView!
+final class StockViewController: BaseStockViewController {
     @IBOutlet var loadingView: UIActivityIndicatorView!
     
     typealias ViewModel = StockViewModel
     var viewModel: StockViewModel!
     
-    private var stocks: [StockModel] = []
-    private let bag = DisposeBag()
     private lazy var refreshHandler: RefreshHandler = {
         RefreshHandler(view: tableView)
     }()
@@ -28,28 +25,31 @@ final class StockViewController: UIViewController {
         configureUserInterface()
         bindUserInterface()
         viewModel.inputs.initialiseData.accept(())
-        loadingView.startAnimating()
     }
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         viewModel.inputs.fetchCachedStocks.accept(())
+        loadingView.startAnimating()
     }
 
-    func configureUserInterface() {
-        tableView.isHidden = true
+    override func configureUserInterface() {
+        super.configureUserInterface()
         navigationItem.title = "Stocks"
-        navigationController?.navigationBar.prefersLargeTitles = true
-        tableView.rowHeight = 150
-        tableView.dataSource = self
-        let nib = UINib(nibName: StockTableViewCell.Constants.stockCellName, bundle: nil)
-        tableView.register(nib, forCellReuseIdentifier: StockTableViewCell.Constants.stockCellIdentifier)
+        tableView.isHidden = true
     }
     
     func bindUserInterface() {
         refreshHandler.refresh
             .startWith(())
             .bind(to: viewModel.inputs.fetchStocks)
+            .disposed(by: bag)
+        
+        tableView.rx.itemSelected
+            .map({ [unowned self] in
+                return self.stocks[$0.row]
+            })
+            .bind(to: viewModel.inputs.stockSelected)
             .disposed(by: bag)
         
         viewModel.outputs.dataInitialised
@@ -62,9 +62,13 @@ final class StockViewController: UIViewController {
         
         viewModel.outputs.stocks
             .do( onError: { [weak self] error in
+                self?.refreshHandler.end()
+                self?.loadingView.stopAnimating()
+                self?.loadingView.isHidden = true
                 self?.showErrorAlert(error: error)
+                self?.tableView.isHidden = false
             })
-            .asDriver(onErrorJustReturn: [])
+            .asDriver(onErrorDriveWith: .empty())
             .drive(onNext: { [weak self] in
                 self?.refreshHandler.end()
                 self?.loadingView.stopAnimating()
@@ -74,24 +78,24 @@ final class StockViewController: UIViewController {
             })
             .disposed(by: bag)
         
-        viewModel.outputs.updatedStock
+        viewModel.outputs.updatedStocks
             .asDriver(onErrorDriveWith: .empty())
             .drive(onNext: { [weak self] in
-                self?.updateStocks(for: $0)
+                self?.update(with: $0)
+                self?.reloadCells(for: $0)
             })
             .disposed(by: bag)
-        
-        tableView.rx.itemSelected
-            .map({ [unowned self] in
-                return self.stocks[$0.row]
+
+        viewModel.outputs.favoriteStock
+            .asDriver(onErrorDriveWith: .empty())
+            .drive(onNext: { [weak self] in
+                self?.update(with: [$0])
             })
-            .bind(to: viewModel.inputs.stockSelected)
             .disposed(by: bag)
     }
     
-    func updateStocks(for stock: StockModel) {
-        guard let index = stocks.firstIndex(where: { $0.symbol == stock.symbol }) else { return }
-        stocks[index].isFavorite = stock.isFavorite
+    override func updateAsFavorite(stock: StockModel) {
+        viewModel.inputs.setAsFavoriteStock.accept(stock)
     }
 }
 
@@ -100,29 +104,3 @@ extension StockViewController: ViewModelable {}
 // Have used traditional way of setting up tableview as it allows more control over updating just
 // one cell of the tableview. If I bind the stocks behavior relay to the table view every time
 // I update it it will refresh the whole table when I may just want to update one cell.
-extension StockViewController: UITableViewDataSource {
-    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return stocks.count
-    }
-    
-    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        guard let cell = tableView.dequeueReusableCell(
-            withIdentifier: StockTableViewCell.Constants.stockCellIdentifier,
-            for: indexPath) as? StockTableViewCell else { return UITableViewCell() }
-        cell.delegate = self
-        cell.displayData = stocks[indexPath.row]
-        return cell
-    }
-}
-
-extension StockViewController: StockTableViewCellDelegate {
-    func stockTableViewCell(
-        _ cell: StockTableViewCell,
-        didSetStockWithSymbol symbol: String,
-        asFavorite isFavorite: Bool
-    ) {
-        guard var stock = stocks.first(where: { $0.stockSymbol == symbol }) else { return }
-        stock.isFavorite = isFavorite
-        viewModel.inputs.setAsFavoriteStock.accept(stock)
-    }
-}

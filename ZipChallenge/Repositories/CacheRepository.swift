@@ -27,14 +27,13 @@ class ZipCacheRepository {
 extension ZipCacheRepository: CacheRepository {
     func update(stocks: [StockModel]) {
         stocks.forEach { stock in
-            if let index = cachedStocks.firstIndex(where: { $0.symbol == stock.symbol }) {
+            if let index = cachedStocks.indexes(of: stock).first {
                 cachedStocks[index] = stock
             }
         }
     }
     
     func set(stocks: [StockModel]) {
-        let orderedStocks = stocks.sorted(by: { $0.symbol < $1.symbol })
-        self.cachedStocks = orderedStocks
+        self.cachedStocks = stocks
     }
 }

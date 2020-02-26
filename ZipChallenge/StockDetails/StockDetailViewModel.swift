@@ -13,13 +13,13 @@ import RxCocoa
 protocol StockDetailViewModelInputs {
     var startUpdates: PublishRelay<Void> { get }
     var stopUpdatesAndSave: PublishRelay<StockModel> { get }
-    var fetchPrice: PublishRelay<Void> { get }
+//    var fetchPrice: PublishRelay<Void> { get }
     var fetchPriceHistory: PublishRelay<Void> { get }
 }
 
 protocol StockDetailViewModelOutputs {
-    var updatedStock: Driver<StockModel> { get }
-    var historicalPrices: Driver<[StockDetailHistorical]> { get }
+    var updatedStock: Observable<StockModel> { get }
+    var historicalPrices: Observable<[StockDetailHistorical]> { get }
 }
 
 protocol StockDetailViewModel {
@@ -34,12 +34,12 @@ class ZipStockDetailViewModel {
     // Inputs
     let startUpdates = PublishRelay<Void>()
     let stopUpdatesAndSave = PublishRelay<StockModel>()
-    let fetchPrice = PublishRelay<Void>()
+//    let fetchPrice = PublishRelay<Void>()
     let fetchPriceHistory = PublishRelay<Void>()
     
     // Outputs
-    let updatedStock: Driver<StockModel>
-    let historicalPrices: Driver<[StockDetailHistorical]>
+    let updatedStock: Observable<StockModel>
+    let historicalPrices: Observable<[StockDetailHistorical]>
     
     private let service: StockDetailService
     private let bag = DisposeBag()
@@ -49,11 +49,11 @@ class ZipStockDetailViewModel {
         self.service = service
         self.stock = stock
         
-        let fetchPrice = self.fetchPrice
+        let fetchPrice = PublishRelay<Void>()
         var timer: Timer? = nil
             
         self.startUpdates
-            .asDriver(onErrorJustReturn: ())
+            .asDriver(onErrorDriveWith: .empty())
             .drive(onNext: {
                 timer = Timer.scheduledTimer(withTimeInterval: 15, repeats: true) { _ in
                     fetchPrice.accept(())
@@ -70,17 +70,17 @@ class ZipStockDetailViewModel {
             })
             .disposed(by: bag)
         
-        self.updatedStock = self.fetchPrice
+        self.updatedStock = fetchPrice
             .flatMap({ _ -> Observable<StockModel> in
                 return service.fetchPrice(for: stock)
+                    .asObservable()
             })
-            .asDriver(onErrorDriveWith: .empty())
         
         self.historicalPrices = self.fetchPriceHistory
             .flatMap({ _ -> Observable<[StockDetailHistorical]> in
                 return service.fetchPriceHistory(for: stock)
+                    .asObservable()
             })
-            .asDriver(onErrorJustReturn: [])
     }
 }
 

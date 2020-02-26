@@ -49,8 +49,14 @@ class ZipDataRepository: DataRepository {
         let fetchRequest: NSFetchRequest<Stock> = Stock.fetchRequest()
         let dateSort = NSSortDescriptor(key: "symbol", ascending: true)
         fetchRequest.sortDescriptors = [dateSort]
-        guard let stocks = try? mainContext.fetch(fetchRequest) else { return [] }
-        return stocks
+        do {
+            return try mainContext.fetch(fetchRequest)
+        } catch {
+            DataError.fetch(error).log()
+            return []
+        }
+//        guard let stocks = try? mainContext.fetch(fetchRequest) else { return [] }
+//        return stocks
     }
     
     func save(_ stocks: [StockPersistable]) {
@@ -73,6 +79,7 @@ class ZipDataRepository: DataRepository {
                     do {
                         try context.save()
                     } catch {
+                        DataError.save(error).log()
                         print("Save error")
                     }
                     context.reset()

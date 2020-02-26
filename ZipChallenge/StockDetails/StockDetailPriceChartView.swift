@@ -14,7 +14,6 @@ protocol StockDetailPriceChartViewDelegate: AnyObject {
 }
 
 class StockDetailPriceChartView: UIView {
-    @IBOutlet var titleLabel: UILabel!
     @IBOutlet var durationButton: UIButton!
     @IBOutlet var lineChartView: LineChartView!
     
@@ -33,26 +32,12 @@ class StockDetailPriceChartView: UIView {
     
     func updateView() {
         guard let data = displayData else {
-            titleLabel.text = ""
+            durationButton.isHidden = true
             lineChartView.isHidden = true
             return
         }
-        titleLabel.text = data.duration.message
+        durationButton.setTitle(data.duration.text, for: .normal)
         configureChart(with: data.duration, historicalPrices: data.historicalPrices)
-    }
-    
-    func configureChart(with duration: PriceChartDuration, historicalPrices: [StockDetailHistorical]) {
-        let dataEntries = historicalPrices.map({ detailHistorical -> ChartDataEntry in
-            let timeInterval = detailHistorical.stockDate.timeIntervalSince1970
-            let xValue = Double(timeInterval)
-            let yValue = detailHistorical.stockPrice
-            return ChartDataEntry(x: xValue, y: yValue)
-        })
-        let label = "Price History for \(duration.message)"
-        let dataSet = LineChartDataSet(entries: dataEntries, label: label)
-        lineChartView.data = LineChartData(dataSet: dataSet)
-        let xAxis = lineChartView.xAxis
-        xAxis.valueFormatter = axisFormatDelegate
     }
     
     @IBAction func didTapDuration(_ sender: UIButton) {
@@ -60,10 +45,38 @@ class StockDetailPriceChartView: UIView {
     }
 }
 
+extension StockDetailPriceChartView {
+    private func configureChart(with duration: PriceChartPeriod, historicalPrices: [StockDetailHistorical]) {
+        let dataEntries = historicalPrices.map({ detailHistorical -> ChartDataEntry in
+            let timeInterval = detailHistorical.stockDate.timeIntervalSince1970
+            let xValue = Double(timeInterval)
+            let yValue = detailHistorical.stockPrice
+            return ChartDataEntry(x: xValue, y: yValue)
+        })
+        let label = "Stock price over the last \(duration.text)"
+        let dataSet = LineChartDataSet(entries: dataEntries, label: label)
+        dataSet.lineWidth = 2
+        let lineColor = obtainLineColor(for: historicalPrices)
+        dataSet.colors = [lineColor]
+        dataSet.drawCirclesEnabled = false
+        dataSet.drawValuesEnabled = false
+        lineChartView.data = LineChartData(dataSet: dataSet)
+        let xAxis = lineChartView.xAxis
+        xAxis.valueFormatter = axisFormatDelegate
+    }
+    
+    private func obtainLineColor(for historicalPrices: [StockDetailHistorical]) -> UIColor {
+        guard let startPrice = historicalPrices.first?.stockPrice,
+            let endPrice = historicalPrices.last?.stockPrice else { return .purple }
+        let isGain = endPrice > startPrice
+        return isGain ? .green : .red
+    }
+}
+
 extension StockDetailPriceChartView: IAxisValueFormatter {
     func stringForValue(_ value: Double, axis: AxisBase?) -> String {
         let dateFormatter = DateFormatter()
-        dateFormatter.dateFormat = "dd-MM-yy"
+        dateFormatter.dateFormat = "MMM-yy"
         return dateFormatter.string(from: Date(timeIntervalSince1970: value))
     }
 }

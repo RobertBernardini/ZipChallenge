@@ -10,14 +10,9 @@ import UIKit
 import RxSwift
 import RxCocoa
 
-final class FavoriteStockViewController: UIViewController {
-    @IBOutlet var tableView: UITableView!
-    
+final class FavoriteStockViewController: BaseStockViewController {
     typealias ViewModel = FavoriteStockViewModel
     var viewModel: FavoriteStockViewModel!
-    
-    private var favoriteStocks: [StockModel] = []
-    private let bag = DisposeBag()
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -33,27 +28,33 @@ final class FavoriteStockViewController: UIViewController {
     
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
-        viewModel.inputs.stopUpdatesAndSave.accept(favoriteStocks)
+        viewModel.inputs.stopUpdatesAndSave.accept(stocks)
     }
     
-    func configureUserInterface() {
+    override func configureUserInterface() {
+        super.configureUserInterface()
         navigationItem.title = "Favourite Stocks"
-        navigationController?.navigationBar.prefersLargeTitles = true
-        tableView.rowHeight = UITableView.automaticDimension
-        tableView.dataSource = self
-        let nib = UINib(nibName: StockTableViewCell.Constants.stockCellName, bundle: nil)
-        tableView.register(nib, forCellReuseIdentifier: StockTableViewCell.Constants.stockCellIdentifier)
     }
     
     func bindUserInterface() {
         viewModel.outputs.favoriteStocks
+            .asDriver(onErrorDriveWith: .empty())
             .drive(onNext: { [weak self] in
-                self?.favoriteStocks = $0
+                self?.stocks = $0
                 self?.tableView.reloadData()
             })
             .disposed(by: bag)
         
-        viewModel.outputs.updatedStock
+        viewModel.outputs.updatedStocks
+            .asDriver(onErrorDriveWith: .empty())
+            .drive(onNext: { [weak self] in
+                self?.update(with: $0)
+                self?.reloadCells(for: $0)
+            })
+            .disposed(by: bag)
+
+        viewModel.outputs.removedStock
+            .asDriver(onErrorDriveWith: .empty())
             .drive(onNext: { [weak self] in
                 self?.remove(stock: $0)
             })
@@ -61,50 +62,24 @@ final class FavoriteStockViewController: UIViewController {
         
         tableView.rx.itemSelected
             .map({ [unowned self] in
-                return self.favoriteStocks[$0.row]
+                return self.stocks[$0.row]
             })
             .bind(to: viewModel.inputs.stockSelected)
             .disposed(by: bag)
     }
 
     func remove(stock: StockModel) {
-        guard let index = favoriteStocks.firstIndex(where: { $0.symbol == stock.symbol }) else { return }
-        favoriteStocks.remove(at: index)
+        guard let index = stocks.indexes(of: stock).first else { return }
+        stocks.remove(at: index)
         let indexPath = IndexPath(row: index, section: 0)
         tableView.beginUpdates()
         tableView.deleteRows(at: [indexPath], with: .right)
         tableView.endUpdates()
     }
+    
+    override func updateAsFavorite(stock: StockModel) {
+        viewModel.inputs.removeFromFavoriteStock.accept(stock)
+    }
 }
 
 extension FavoriteStockViewController: ViewModelable {}
-
-// Have used traditional way of setting up tableview as it allows more control over updating just
-// one cell of the tableview. If I bind the stocks behavior relay to the table view every time
-// I update it it will refresh the whole table when I may just want to update one cell.
-extension FavoriteStockViewController: UITableViewDataSource {
-    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return favoriteStocks.count
-    }
-    
-    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        guard let cell = tableView.dequeueReusableCell(
-            withIdentifier: StockTableViewCell.Constants.stockCellIdentifier,
-            for: indexPath) as? StockTableViewCell else { return UITableViewCell() }
-        cell.delegate = self
-        cell.displayData = favoriteStocks[indexPath.row]
-        return cell
-    }
-}
-
-extension FavoriteStockViewController: StockTableViewCellDelegate {
-    func stockTableViewCell(
-        _ cell: StockTableViewCell,
-        didSetStockWithSymbol symbol: String,
-        asFavorite isFavorite: Bool
-    ) {
-        guard var stock = favoriteStocks.first(where: { $0.stockSymbol == symbol }) else { return }
-        stock.isFavorite = isFavorite
-        viewModel.inputs.setAsFavoriteStock.accept(stock)
-    }
-}

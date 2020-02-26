@@ -42,6 +42,7 @@ class StockTableViewCell: UITableViewCell {
         super.awakeFromNib()
         percentageChangeView.layer.cornerRadius = 5
         logoImage.layer.cornerRadius = 5
+        favoriteButton.layer.cornerRadius = 5
     }
     
     func updateView() {

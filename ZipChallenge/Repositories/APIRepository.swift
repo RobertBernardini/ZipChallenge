@@ -14,9 +14,9 @@ import RxAlamofire
 
 enum Endpoint {
     case stockList
-    case stockHistory(stock: String, startDate: Date, endDate: Date)
-    case stockPriceList(stocks: [String])
-    case stockProfileList(stocks: [String])
+    case stockHistory(stockSymbol: String, startDate: Date, endDate: Date)
+    case stockPriceList(stockSymbols: [String])
+    case stockProfileList(stockSymbols: [String])
     
     var request: URLRequest? {
         guard let url = components.url else { return nil }
@@ -76,8 +76,14 @@ class ZipAPIRepository: APIRepository {
             .data()
             .map {
                 let decoder = JSONDecoder()
-                decoder.dateDecodingStrategy = .iso8601
-                return try decoder.decode(T.self, from: $0)
+                decoder.dateDecodingStrategy = .formatted(DateFormatter.dateOnly())
+                do {
+                    return try decoder.decode(T.self, from: $0)
+                } catch {
+                    print(error.localizedDescription)
+                    error.log()
+                    throw APIError.decoding(error)
+                }
             }
             .asSingle()
     }

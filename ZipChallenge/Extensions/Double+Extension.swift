@@ -11,9 +11,10 @@ import Foundation
 extension Double {
     func toDollarString() -> String {
         let formatter = NumberFormatter()
-        formatter.numberStyle = .currency
-        formatter.currencySymbol = "$"
-        formatter.currencyDecimalSeparator = "."
+        formatter.numberStyle = .decimal
+        formatter.decimalSeparator = "."
+        formatter.minimumFractionDigits = 3
+        formatter.maximumFractionDigits = 3
         return formatter.string(from: self as NSNumber) ?? ""
     }
 }

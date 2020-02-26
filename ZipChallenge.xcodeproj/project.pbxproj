@@ -9,6 +9,8 @@
 /* Begin PBXBuildFile section */
 		59087E05DCAEA77665D5E550 /* Pods_ZipChallengeTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 39662845DC8BAB8FBA2ADE94 /* Pods_ZipChallengeTests.framework */; };
 		B0663707A366C3C96BBD0CF1 /* Pods_ZipChallenge.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5587D11F3F52E4063B7280F0 /* Pods_ZipChallenge.framework */; };
+		E106A85E2406B09F005F2F32 /* DateFormatter+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = E106A85D2406B09F005F2F32 /* DateFormatter+Extension.swift */; };
+		E1345C7624068E9E0089F840 /* Collection+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1345C7524068E9E0089F840 /* Collection+Extension.swift */; };
 		E167A5752402218E001F0DDB /* Stock+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = E167A5742402218E001F0DDB /* Stock+Extensions.swift */; };
 		E167A57724022F78001F0DDB /* StockModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = E167A57624022F78001F0DDB /* StockModel.swift */; };
 		E167A5792402B4BF001F0DDB /* Error+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = E167A5782402B4BF001F0DDB /* Error+Extensions.swift */; };
@@ -25,6 +27,7 @@
 		E167A5912402D59D001F0DDB /* UIApplication+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = E167A5902402D59D001F0DDB /* UIApplication+Extensions.swift */; };
 		E167A5932402E000001F0DDB /* SettingsVersionTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = E167A5922402E000001F0DDB /* SettingsVersionTableViewCell.swift */; };
 		E167A5972402E030001F0DDB /* SettingsDarkModeTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = E167A5962402E030001F0DDB /* SettingsDarkModeTableViewCell.swift */; };
+		E16A6C6B24069BE00052A43E /* BaseStockViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = E16A6C6A24069BE00052A43E /* BaseStockViewController.swift */; };
 		E16CF5D924036C2900FE5A4D /* ViewModelable.swift in Sources */ = {isa = PBXBuildFile; fileRef = E16CF5D824036C2900FE5A4D /* ViewModelable.swift */; };
 		E16CF5DD2403975C00FE5A4D /* APIRepositoryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E16CF5DC2403975C00FE5A4D /* APIRepositoryTests.swift */; };
 		E16CF5DF2403976700FE5A4D /* DataRepositoryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E16CF5DE2403976700FE5A4D /* DataRepositoryTests.swift */; };
@@ -74,6 +77,8 @@
 		5587D11F3F52E4063B7280F0 /* Pods_ZipChallenge.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_ZipChallenge.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		AE6F523AE8DDBF2EB62D617C /* Pods-ZipChallengeTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ZipChallengeTests.debug.xcconfig"; path = "Target Support Files/Pods-ZipChallengeTests/Pods-ZipChallengeTests.debug.xcconfig"; sourceTree = "<group>"; };
 		CE7451CD653ACFCB6B85DABC /* Pods-ZipChallenge.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ZipChallenge.debug.xcconfig"; path = "Target Support Files/Pods-ZipChallenge/Pods-ZipChallenge.debug.xcconfig"; sourceTree = "<group>"; };
+		E106A85D2406B09F005F2F32 /* DateFormatter+Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DateFormatter+Extension.swift"; sourceTree = "<group>"; };
+		E1345C7524068E9E0089F840 /* Collection+Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Collection+Extension.swift"; sourceTree = "<group>"; };
 		E167A5742402218E001F0DDB /* Stock+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Stock+Extensions.swift"; sourceTree = "<group>"; };
 		E167A57624022F78001F0DDB /* StockModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StockModel.swift; sourceTree = "<group>"; };
 		E167A5782402B4BF001F0DDB /* Error+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Error+Extensions.swift"; sourceTree = "<group>"; };
@@ -90,6 +95,7 @@
 		E167A5902402D59D001F0DDB /* UIApplication+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIApplication+Extensions.swift"; sourceTree = "<group>"; };
 		E167A5922402E000001F0DDB /* SettingsVersionTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsVersionTableViewCell.swift; sourceTree = "<group>"; };
 		E167A5962402E030001F0DDB /* SettingsDarkModeTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsDarkModeTableViewCell.swift; sourceTree = "<group>"; };
+		E16A6C6A24069BE00052A43E /* BaseStockViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BaseStockViewController.swift; sourceTree = "<group>"; };
 		E16CF5D824036C2900FE5A4D /* ViewModelable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewModelable.swift; sourceTree = "<group>"; };
 		E16CF5DC2403975C00FE5A4D /* APIRepositoryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = APIRepositoryTests.swift; sourceTree = "<group>"; };
 		E16CF5DE2403976700FE5A4D /* DataRepositoryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataRepositoryTests.swift; sourceTree = "<group>"; };
@@ -174,6 +180,7 @@
 			isa = PBXGroup;
 			children = (
 				E1FACAF123FFB25E00D46DB3 /* Main.storyboard */,
+				E16A6C6A24069BE00052A43E /* BaseStockViewController.swift */,
 				E167A58C2402C5B8001F0DDB /* StockTableViewCell.swift */,
 				E1E7DC472404941700E95C9A /* StockTableViewCell.xib */,
 			);
@@ -282,10 +289,12 @@
 			isa = PBXGroup;
 			children = (
 				E1FACAF823FFB25F00D46DB3 /* Date+Extensions.swift */,
+				E106A85D2406B09F005F2F32 /* DateFormatter+Extension.swift */,
 				E167A5782402B4BF001F0DDB /* Error+Extensions.swift */,
 				E167A5902402D59D001F0DDB /* UIApplication+Extensions.swift */,
 				E1E7DC4F240524AD00E95C9A /* Double+Extension.swift */,
 				E1E7DC51240529B500E95C9A /* UIViewController+Extensions.swift */,
+				E1345C7524068E9E0089F840 /* Collection+Extension.swift */,
 			);
 			path = Extensions;
 			sourceTree = "<group>";
@@ -504,6 +513,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				E1FACAFF23FFB25F00D46DB3 /* StockProtocols.swift in Sources */,
+				E1345C7624068E9E0089F840 /* Collection+Extension.swift in Sources */,
 				E1FACAFB23FFB25F00D46DB3 /* StockList.swift in Sources */,
 				E1FACB0123FFB25F00D46DB3 /* StockViewController.swift in Sources */,
 				E16CF5E9240398FC00FE5A4D /* ViewDisplayable.swift in Sources */,
@@ -542,7 +552,9 @@
 				E1FACB0A23FFBC1C00D46DB3 /* DataRepository.swift in Sources */,
 				E1E7DC4E2404DB3C00E95C9A /* PriceChartData.swift in Sources */,
 				E167A5852402C18F001F0DDB /* SettingsViewModel.swift in Sources */,
+				E16A6C6B24069BE00052A43E /* BaseStockViewController.swift in Sources */,
 				E16CF5E7240398A500FE5A4D /* StockDetailView.swift in Sources */,
+				E106A85E2406B09F005F2F32 /* DateFormatter+Extension.swift in Sources */,
 				E167A5972402E030001F0DDB /* SettingsDarkModeTableViewCell.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

@@ -26,6 +26,7 @@ final class StockDetailViewController: UIViewController {
         configureUserInterface()
         bindUserInterface()
         viewModel.inputs.startUpdates.accept(())
+        viewModel.inputs.fetchPriceHistory.accept(())
     }
     
     override func viewWillDisappear(_ animated: Bool) {
@@ -37,10 +38,12 @@ final class StockDetailViewController: UIViewController {
     func configureUserInterface() {
         navigationItem.title = "Stock Details"
         detailView.displayData = stock
+        priceChartView.delegate = self
     }
     
     func bindUserInterface() {
         viewModel.outputs.updatedStock
+            .asDriver(onErrorDriveWith: .empty())
             .drive(onNext: { [weak self] in
                 self?.stock = $0
                 self?.detailView.displayData = $0
@@ -48,9 +51,10 @@ final class StockDetailViewController: UIViewController {
             .disposed(by: bag)
         
         viewModel.outputs.historicalPrices
+            .asDriver(onErrorDriveWith: .empty())
             .drive(onNext: { [weak self] in
                 self?.historicalPrices = $0
-                let duration = PriceChartDuration.threeMonths
+                let duration = PriceChartPeriod.threeMonths
                 guard let historicals = self?.historicalPrices($0, from: duration.startDate) else { return }
                 let priceChartData = PriceChartData(duration: duration, historicalPrices: historicals)
                 self?.priceChartView.displayData = priceChartData
@@ -60,7 +64,7 @@ final class StockDetailViewController: UIViewController {
     
     private func historicalPrices(_ historicals: [StockDetailHistorical], from startDate: Date) -> [StockDetailHistorical]? {
         var newHistoricals = historicals
-        newHistoricals.removeAll(where: { $0.stockDate >= startDate })
+        newHistoricals.removeAll(where: { $0.stockDate < startDate })
         return newHistoricals
     }
 }
@@ -70,8 +74,8 @@ extension StockDetailViewController: ViewModelable {}
 extension StockDetailViewController: StockDetailPriceChartViewDelegate {
     func stockDetailPriceHistoryViewDidTapUpdateDuration(_ view: StockDetailPriceChartView) {
         showPriceHistoryActionSheet(
-            with: PriceChartDuration.title,
-            message: PriceChartDuration.message) { [unowned self] duration in
+            with: PriceChartPeriod.title,
+            message: PriceChartPeriod.message) { [unowned self] duration in
                 guard let historicals = self.historicalPrices(self.historicalPrices, from: duration.startDate) else { return }
                 let priceChartData = PriceChartData(duration: duration, historicalPrices: historicals)
                 self.priceChartView.displayData = priceChartData
