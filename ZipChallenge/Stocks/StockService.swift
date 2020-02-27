@@ -10,6 +10,14 @@ import Foundation
 import RxSwift
 import RxCocoa
 
+/*
+ Service that obtains the data requested by the Stock View Model.
+ It initialises data from the persistant data store.
+ It fetches stocks that are saved to the cache.
+ It fecthes the profiles and updates the stocks. These are saved to cache
+ and persisted. Only these stocks are persisted to save on memory and processing.
+ It can be assumed that users will only scroll to stocks that interest them.
+ */
 protocol StockService {
     var cachedStock: [StockModel] { get }
     

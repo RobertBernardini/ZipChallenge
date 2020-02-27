@@ -13,6 +13,9 @@ protocol StockDetailPriceChartViewDelegate: AnyObject {
     func stockDetailPriceHistoryViewDidTapUpdateDuration(_ view: StockDetailPriceChartView)
 }
 
+/*
+ View that displays the stock price history.
+ */
 class StockDetailPriceChartView: UIView {
     @IBOutlet var durationButton: UIButton!
     @IBOutlet var lineChartView: LineChartView!
@@ -65,6 +68,7 @@ extension StockDetailPriceChartView {
         xAxis.valueFormatter = axisFormatDelegate
     }
     
+    // Sets the line colour, green for increased stock price, red for decreased stock price.
     private func obtainLineColor(for historicalPrices: [StockDetailHistorical]) -> UIColor {
         guard let startPrice = historicalPrices.first?.stockPrice,
             let endPrice = historicalPrices.last?.stockPrice else { return .purple }
@@ -74,6 +78,7 @@ extension StockDetailPriceChartView {
 }
 
 extension StockDetailPriceChartView: IAxisValueFormatter {
+    // Delegate function to set date labels on x-axis.
     func stringForValue(_ value: Double, axis: AxisBase?) -> String {
         let dateFormatter = DateFormatter()
         dateFormatter.dateFormat = "MMM-yy"

@@ -8,6 +8,9 @@
 
 import UIKit
 
+/*
+ View that displays the stock data.
+ */
 class StockDetailView: UIView {
     @IBOutlet var logoImage: UIImageView!
     @IBOutlet var symbolLabel: UILabel!

@@ -17,8 +17,8 @@ import RxCocoa
 class BaseStockViewController: UIViewController {
     @IBOutlet var tableView: UITableView!
 
-    var stocks: [StockModel] = []
-    var stocksInView: [StockModel] = []
+    var stocks: [StockModel] = []  // Stocks
+    var stocksInView: [StockModel] = []  // Profiles will only be fetched for stocks in view.
     let bag = DisposeBag()
     
     func configureUserInterface() {

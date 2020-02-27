@@ -10,13 +10,19 @@ import Foundation
 import RxSwift
 import RxCocoa
 
+/*
+ Service that obtains the data requested by the Favorite Stock View Model.
+ It has a variable for access to the favorite cached stock.
+ It fetches the prices and updates the favorite stocks.
+ It fecthes the profiles and updates the favorite stocks.
+ It removes the stocks from favorites.
+*/
 protocol FavoriteStockService {
     var cachedFavoriteStock: [StockModel] { get }
     
     func fetchPrices(for stocks: [StockModel]) -> Observable<[StockModel]>
     func fetchStockProfiles(for stocks: [StockModel]) -> Observable<[StockModel]>
     func removeFromFavorite(stock: StockModel) -> Observable<StockModel>
-    func save(stocks: [StockModel])
 }
 
 class ZipFavoriteStockService {
@@ -50,6 +56,7 @@ extension ZipFavoriteStockService: FavoriteStockService {
                     return stock
                 })
                 self?.cacheRepository.update(stocks: updatedStocks)
+                self?.dataRepository.saveOnSeparateThread(updatedStocks)
                 return updatedStocks
             })
             .asObservable()
@@ -102,9 +109,5 @@ extension ZipFavoriteStockService: FavoriteStockService {
         dataRepository.saveOnSeparateThread([stock])
         cacheRepository.update(stocks: [stock])
         return Observable.just(stock)
-    }
-    
-    func save(stocks: [StockModel]) {
-        dataRepository.saveOnSeparateThread(stocks)
     }
 }

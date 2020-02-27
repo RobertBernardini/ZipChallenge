@@ -10,10 +10,14 @@ import Foundation
 import RxSwift
 import RxCocoa
 
+/*
+ Service that obtains the data requested by the Stock Detail View Model.
+ It fetches the price and updates the stock.
+ It fecthes the price history returns it. This data is not persisted.
+*/
 protocol StockDetailService {
     func fetchPrice(for stock: StockModel) -> Observable<StockModel>
     func fetchPriceHistory(for stock: StockModel) -> Observable<[StockDetailHistorical]>
-    func save(stock: StockModel)
 }
 
 class ZipStockDetailService {
@@ -40,6 +44,7 @@ extension ZipStockDetailService: StockDetailService {
             .map({ [weak self] priceModel -> StockModel in
                 var updatedStock = stock
                 updatedStock.update(price: priceModel.price)
+                self?.dataRepository.saveOnSeparateThread([updatedStock])
                 self?.cacheRepository.update(stocks: [updatedStock])
                 return updatedStock
             })
@@ -72,9 +77,5 @@ extension ZipStockDetailService: StockDetailService {
                 case .completed: return .empty()
                 }
             })
-    }
-    
-    func save(stock: StockModel) {
-        dataRepository.saveOnSeparateThread([stock])
     }
 }

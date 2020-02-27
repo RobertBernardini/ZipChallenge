@@ -10,9 +10,14 @@ import Foundation
 import RxSwift
 import RxCocoa
 
+/*
+ View model that manages the requests of the Stock Detail View Controller
+ and returns the required data to be displayed. It uses Rx to bind signals
+ and observers.
+*/
 protocol StockDetailViewModelInputs {
     var startUpdates: PublishRelay<Void> { get }
-    var stopUpdatesAndSave: PublishRelay<StockModel> { get }
+    var stopUpdates: PublishRelay<Void> { get }
     var fetchPriceHistory: PublishRelay<Void> { get }
 }
 
@@ -33,7 +38,7 @@ class ZipStockDetailViewModel {
     
     // Inputs
     let startUpdates = PublishRelay<Void>()
-    let stopUpdatesAndSave = PublishRelay<StockModel>()
+    let stopUpdates = PublishRelay<Void>()
     let fetchPriceHistory = PublishRelay<Void>()
     
     // Outputs
@@ -60,12 +65,11 @@ class ZipStockDetailViewModel {
             })
             .disposed(by: bag)
         
-        self.stopUpdatesAndSave
+        self.stopUpdates
             .asDriver(onErrorDriveWith: .empty())
             .drive(onNext: {
                 timer?.invalidate()
                 timer = nil
-                service.save(stock: $0)
             })
             .disposed(by: bag)
         

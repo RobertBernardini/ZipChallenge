@@ -11,13 +11,11 @@ import RxSwift
 import RxCocoa
 
 /*
- View Controller that displays the list of favourite.
+ View Controller that displays the list of favourites stocks.
  It is a sub-class of Base Stock View Controller.
  Rx is used to update data coming in from the view model and to send signals
  to the view model to fetch data.
  It functions much like Stock View Controller but only for favourite stocks.
- It also does not fetch the stock profile, that is left to the Stock View
- Controller which is then stored in cache.
  The price data is updated every 15 seconds.
 */
 final class FavoriteStockViewController: BaseStockViewController {
@@ -38,7 +36,7 @@ final class FavoriteStockViewController: BaseStockViewController {
     
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
-        viewModel.inputs.stopUpdatesAndSave.accept(stocks)
+        viewModel.inputs.stopUpdates.accept(())
     }
     
     override func configureUserInterface() {
@@ -55,6 +53,8 @@ final class FavoriteStockViewController: BaseStockViewController {
             .bind(to: viewModel.inputs.stockSelected)
             .disposed(by: bag)
         
+        // Bindings in order to detect when table stops scrolling and
+        // fetch profile data
         tableView.rx.willDisplayCell
             .map({ [unowned self] cellTuple -> Void in
                 let stock = self.stocks[cellTuple.indexPath.row]
@@ -106,6 +106,7 @@ final class FavoriteStockViewController: BaseStockViewController {
             })
             .disposed(by: bag)
         
+        // Update table and set favorite stocks
         viewModel.outputs.favoriteStocks
             .asDriver(onErrorDriveWith: .empty())
             .drive(onNext: { [weak self] in
@@ -122,6 +123,7 @@ final class FavoriteStockViewController: BaseStockViewController {
             })
             .disposed(by: bag)
         
+        // Update stocks
         viewModel.outputs.updatedStocks
             .asDriver(onErrorDriveWith: .empty())
             .drive(onNext: { [weak self] in
@@ -130,6 +132,7 @@ final class FavoriteStockViewController: BaseStockViewController {
             })
             .disposed(by: bag)
 
+        // Remove stock
         viewModel.outputs.removedStock
             .asDriver(onErrorDriveWith: .empty())
             .drive(onNext: { [weak self] in

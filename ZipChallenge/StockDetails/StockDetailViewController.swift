@@ -45,8 +45,7 @@ final class StockDetailViewController: UIViewController {
     
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
-        guard let stock = stock else { return }
-        viewModel.inputs.stopUpdatesAndSave.accept(stock)
+        viewModel.inputs.stopUpdates.accept(())
     }
     
     func configureUserInterface() {

@@ -11,7 +11,9 @@ import RxSwift
 import RxCocoa
 
 /*
- View model that fetches the stock list and profile
+ View model that manages the requests of the Stock View Controller and
+ returns the required data to be displayed. It uses Rx to bind signals
+ and observers.
  */
 protocol StockViewModelInputs {
     var initializeData: PublishRelay<Void> { get }

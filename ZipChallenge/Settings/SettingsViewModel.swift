@@ -10,6 +10,11 @@ import Foundation
 import RxSwift
 import RxCocoa
 
+/*
+ View model that manages the requests of the Settings View Controller
+ and returns the required data to be displayed. It uses Rx to bind
+ signals and observers.
+*/
 protocol SettingsViewModelInputs {
     var setDarkMode: PublishRelay<Bool> { get }
 }

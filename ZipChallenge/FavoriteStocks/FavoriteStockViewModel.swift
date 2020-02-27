@@ -10,9 +10,14 @@ import Foundation
 import RxSwift
 import RxCocoa
 
+/*
+ View model that manages the requests of the Favorite Stock View Controller
+ and returns the required data to be displayed. It uses Rx to bind signals
+ and observers.
+*/
 protocol FavoriteStockViewModelInputs {
     var startUpdates: PublishRelay<Void> { get }
-    var stopUpdatesAndSave: PublishRelay<[StockModel]> { get }
+    var stopUpdates: PublishRelay<Void> { get }
     var fetchFavoriteStocks: PublishRelay<Void> { get }
     var fetchProfiles: PublishRelay<[StockModel]> { get }
     var removeFromFavoriteStock: PublishRelay<StockModel> { get }
@@ -37,7 +42,7 @@ class ZipFavoriteStockViewModel {
     
     // Inputs
     let startUpdates = PublishRelay<Void>()
-    let stopUpdatesAndSave = PublishRelay<[StockModel]>()
+    let stopUpdates = PublishRelay<Void>()
     let fetchFavoriteStocks = PublishRelay<Void>()
     let fetchProfiles = PublishRelay<[StockModel]>()
     let removeFromFavoriteStock = PublishRelay<StockModel>()
@@ -67,12 +72,11 @@ class ZipFavoriteStockViewModel {
             })
             .disposed(by: bag)
         
-        self.stopUpdatesAndSave
+        self.stopUpdates
             .asDriver(onErrorDriveWith: .empty())
             .drive(onNext: {
                 timer?.invalidate()
                 timer = nil
-                service.save(stocks: $0)
             })
             .disposed(by: bag)
         
