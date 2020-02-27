@@ -21,5 +21,6 @@ extension Stock {
         sector = stock.sector
         symbol = stock.symbol
         isFavorite = stock.isFavorite
+        hasProfileData = stock.hasProfileData
     }
 }

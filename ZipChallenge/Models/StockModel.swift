@@ -8,18 +8,20 @@
 //
 
 import Foundation
+import UIKit
 
 struct StockModel {
     var symbol: String
     var name: String
     var price: Double
-    var companyLogo: URL?
+    var companyLogo: String
     var percentageChange: String
     var changes: Double
     var lastDividend: String
     var sector: String
     var industry: String
     var isFavorite: Bool
+    var hasProfileData: Bool
 }
 
 extension StockModel {
@@ -28,12 +30,13 @@ extension StockModel {
         self.name = stock.name ?? ""
         self.price = stock.price
         self.isFavorite = false
-        self.companyLogo = nil
+        self.companyLogo = ""
         self.percentageChange = ""
         self.changes = 0
         self.lastDividend = ""
         self.sector = ""
         self.industry = ""
+        self.hasProfileData = false
     }
 }
 
@@ -42,24 +45,26 @@ extension StockModel {
         self.symbol = stock.symbol ?? ""
         self.name = stock.name ?? ""
         self.price = stock.price
-        self.companyLogo = stock.companyLogo
+        self.companyLogo = stock.companyLogo ?? ""
         self.percentageChange = stock.percentageChange ?? ""
         self.changes = stock.changes
         self.lastDividend = stock.lastDividend ?? ""
         self.sector = stock.sector ?? ""
         self.industry = stock.industry ?? ""
         self.isFavorite = stock.isFavorite
+        self.hasProfileData = stock.hasProfileData
     }
 }
 
 extension StockModel {
     mutating func update(with stockProfile: StockProfileList.StockProfile) {
-        companyLogo = URL(string: stockProfile.data.image)
-        percentageChange = stockProfile.data.changesPercentage
-        changes = stockProfile.data.changes
-        lastDividend = stockProfile.data.lastDiv
-        sector = stockProfile.data.sector
-        industry = stockProfile.data.industry
+        companyLogo = stockProfile.data.image ?? ""
+        percentageChange = stockProfile.data.changesPercentage ?? ""
+        changes = stockProfile.data.changes ?? 0
+        lastDividend = stockProfile.data.lastDiv ?? ""
+        sector = stockProfile.data.sector ?? ""
+        industry = stockProfile.data.industry ?? ""
+        hasProfileData = true
     }
     
     mutating func update(with stockModel: StockModel) {
@@ -73,6 +78,7 @@ extension StockModel {
         sector = stockModel.sector
         industry = stockModel.industry
         isFavorite = stockModel.isFavorite
+        hasProfileData = stockModel.hasProfileData
     }
     
     mutating func update(price: Double) {
@@ -87,11 +93,15 @@ extension StockModel {
 extension StockModel: StockPersistable {}
 
 extension StockModel: StockDisplayable {
-    var stockCompanyLogo: URL? { companyLogo }
+    var stockCompanyLogo: String { companyLogo }
     var stockPercentageChange: String { percentageChange.trimmingCharacters(in: ["(",")"]) }
-    var isStockPercentageChangePositive: Bool {
+    var stockPercentageChangeColor: UIColor {
         let symbol = stockPercentageChange.prefix(1)
-        return symbol == "+"
+        switch symbol {
+        case "+": return .green
+        case "-": return .red
+        default: return .clear
+        }
     }
     var stockSymbol: String { symbol }
     var stockName: String { name }

@@ -54,7 +54,7 @@ class MainCoordinator {
         let favoriteStockViewModel = ZipFavoriteStockViewModel(service: favoriteStockService)
         let favoriteStockViewController = FavoriteStockViewController.instantiate(with: favoriteStockViewModel)
         favoriteStockViewController.tabBarItem = UITabBarItem(tabBarSystemItem: .favorites, tag: 1)
-        
+
         let settingsService: SettingsService = ZipSettingsService()
         let settingsViewModel = ZipSettingsViewModel(service: settingsService)
         let settingsViewController = SettingsViewController.instantiate(with: settingsViewModel)

@@ -34,19 +34,20 @@ class BaseStockViewController: UIViewController {
     }
     
     func reloadCells(for updatedStocks: [StockModel]) {
-        let indexPaths = updatedStocks
-            .map({ stocks.indexes(of: $0).first })
-            .compactMap({ $0 })
-            .map({ IndexPath(row: $0, section: 0) })
-        tableView.beginUpdates()
-        tableView.reloadRows(at: indexPaths, with: .none)
-        tableView.endUpdates()
+        // I originally had code to update each row but it was causing animation conflicts
+        // when updating the cell with profile data and whilst scrolling at the same time
+        // so the only way to avoid this was by reloading the whole table. Since I only reload
+        // when fetching new profile data it should not reload when it already contains data.
+        tableView.reloadData()
     }
         
     // Function to be called by delegate overriden in child classes
     func updateAsFavorite(stock: StockModel) {}
 }
 
+// Have used traditional way of setting up tableview as it allows more control over updating just
+// one cell of the tableview rather than using Rx. If I bind the stocks behavior relay to the table
+// view every time I update it it will refresh the whole table when I may just want to update one cell.
 extension BaseStockViewController: UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return stocks.count

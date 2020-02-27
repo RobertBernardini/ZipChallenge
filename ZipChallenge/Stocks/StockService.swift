@@ -13,9 +13,9 @@ import RxCocoa
 protocol StockService {
     var cachedStock: [StockModel] { get }
     
-    func initialiseData() -> Single<Void>
-    func fetchStocks() -> Single<[StockModel]>
-    func fetchStockProfiles(for stocks: [StockModel]) -> Single<[StockModel]>
+    func initialiseData() -> Observable<Void>
+    func fetchStocks() -> Observable<[StockModel]>
+    func fetchStockProfiles(for stocks: [StockModel]) -> Observable<[StockModel]>
     func update(stock: StockModel)
 }
 
@@ -38,56 +38,52 @@ class ZipStockService {
 }
 
 extension ZipStockService: StockService {
-    func initialiseData() -> Single<Void> {
+    func initialiseData() -> Observable<Void> {
         let stockModels = dataRepository.fetchStocks().map({ StockModel(stock: $0) })
         cacheRepository.set(stocks: stockModels)
-        return Single.just(())
+        return Observable.just(())
     }
     
-    func fetchStocks() -> Single<[StockModel]> {
+    func fetchStocks() -> Observable<[StockModel]> {
         let stocksEndpoint = Endpoint.stockList
         return apiRepository.fetch(type: StockList.self, at: stocksEndpoint)
             .map({ [weak self] stockList -> [StockModel] in
                 var stocks = stockList.stocks.map({ StockModel(stock: $0) })
                 let favoriteStocks = self?.cacheRepository.cachedFavoriteStocks
                 favoriteStocks?.forEach({ favoriteStock in
-                    if let index = stocks.firstIndex(where: { $0.symbol == favoriteStock.symbol }) {
+                    if let index = stocks.firstIndex(of: favoriteStock) {
                         stocks[index].update(isFavorite: true)
+                    }
+                })
+                let stocksWithProfiles = self?.cacheRepository.cachedStocks.filter({ $0.hasProfileData == true })
+                stocksWithProfiles?.forEach({ stockWithProfile in
+                    if let index = stocks.firstIndex(of: stockWithProfile) {
+                        stocks[index].update(with: stockWithProfile)
                     }
                 })
                 // Save the data to Core Data as backup in case there is no connection to internet.
                 // As separate background thread is created to save the data so that this background
                 // thread is not blocked by an intensive task.
                 DispatchQueue.global(qos: .background).async { self?.dataRepository.save(stocks) }
+                
                 // Order and save the stocks to cache.
                 stocks.sort(by: { $0.symbol < $1.symbol })
                 self?.cacheRepository.set(stocks: stocks)
                 return stocks
             })
-            
-            
-            
-//            .asObservable()
-//            .materialize()
-//            .flatMap { [weak self] event -> Observable<[StockModel]> in
-//                guard let self = self else { return Observable.error(ServiceError.deallocatedResources) }
-//                switch event {
-//                case .next(let stockModels):
-//                    
-//                    DispatchQueue.global().async {  }
-//                    self.cacheRepository.set(stocks: stockModels)
-//                    return Observable.just(self.cacheRepository.cachedStocks)
-//                case .error(let error):
-//                    if let urlError = error as? URLError,
-//                        urlError.code == URLError.Code.notConnectedToInternet {}
-//                    error.log()
-//                    return Observable.just(self.cacheRepository.cachedStocks)
-//                case .completed: return .empty()
-//                }
-//        }
-    }
+            .asObservable()
+            .materialize()
+            .flatMap({ [weak self] event -> Observable<[StockModel]> in
+                guard let self = self else { return Observable.error(MemoryError.nilReference) }
+                switch event {
+                case .next(let stocks): return Observable.just(stocks)
+                case .error: return Observable.just(self.cacheRepository.cachedStocks)
+                case .completed: return .empty()
+                }
+            })
+        }
     
-    func fetchStockProfiles(for stocks: [StockModel]) -> Single<[StockModel]> {
+    func fetchStockProfiles(for stocks: [StockModel]) -> Observable<[StockModel]> {
         let symbols = stocks.map({ $0.symbol })
         let profilesEndpoint = Endpoint.stockProfileList(stockSymbols: symbols)
         return apiRepository.fetch(type: StockProfileList.self, at: profilesEndpoint)
@@ -99,8 +95,18 @@ extension ZipStockService: StockService {
                     stock.update(with: profile)
                     return stock
                 })
+                DispatchQueue.global(qos: .background).async { self?.dataRepository.save(stocks) }
                 self?.cacheRepository.update(stocks: updatedStocks)
                 return updatedStocks
+            })
+            .asObservable()
+            .materialize()
+            .flatMap({ event -> Observable<[StockModel]> in
+                switch event {
+                case .next(let updatedStocks): return Observable.just(updatedStocks)
+                case .error: return .empty()
+                case .completed: return .empty()
+                }
             })
     }
     
@@ -108,24 +114,4 @@ extension ZipStockService: StockService {
         dataRepository.save([stock])
         cacheRepository.update(stocks: [stock])
     }
-    
-//    private func fetchStocksFromAPI() -> Single<[StockModel]> {
-//        let stocksEndpoint = Endpoint.stockList
-//        return apiRepository.fetch(type: StockList.self, at: stocksEndpoint)
-//            .flatMap({ [weak self] in
-//                guard let self = self else { return Single.error(ServiceError.deallocatedResources) }
-//                let stocks = $0.stocks
-//                var symbols = stocks.map({ $0.symbol })
-//                let profilesEndpoint = Endpoint.stockProfileList(stocks: symbols)
-//                return self.apiRepository.fetch(type: StockProfileList.self, at: profilesEndpoint)
-//                    .map({
-//                        let stockProfiles = $0.profiles
-//                        let stockModels = stocks.map({ stock -> StockModel in
-//                            let profile = stockProfiles.first(where: { $0.symbol == stock.symbol })
-//                            return StockModel(stock: stock, stockProfile: profile)
-//                        })
-//                        return stockModels
-//                    })
-//            })
-//    }
 }

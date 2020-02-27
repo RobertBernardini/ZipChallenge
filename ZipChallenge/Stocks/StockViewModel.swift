@@ -61,10 +61,9 @@ class ZipStockViewModel {
                 service.initialiseData()
             })
         
-        let updatedStocks = self.fetchStocks
+        let newStocks = self.fetchStocks
             .flatMap({ _ -> Observable<[StockModel]> in
                 service.fetchStocks()
-                    .asObservable()
             })
         
         let cachedStocks = self.fetchCachedStocks
@@ -73,12 +72,12 @@ class ZipStockViewModel {
             })
 
         self.stocks = Observable
-            .merge([cachedStocks, updatedStocks])
+            .merge([cachedStocks, newStocks])
         
         self.updatedStocks = self.fetchProfiles
             .flatMap({ stocks -> Observable<[StockModel]> in
-                service.fetchStockProfiles(for: stocks)
-                    .asObservable()
+                print("\(stocks.map({ $0.symbol }).description)")
+                return service.fetchStockProfiles(for: stocks)
             })
         
         self.favoriteStock = self.setAsFavoriteStock

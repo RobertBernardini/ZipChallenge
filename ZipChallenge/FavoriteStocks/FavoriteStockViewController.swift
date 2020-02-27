@@ -37,6 +37,13 @@ final class FavoriteStockViewController: BaseStockViewController {
     }
     
     func bindUserInterface() {
+        tableView.rx.itemSelected
+            .map({ [unowned self] in
+                return self.stocks[$0.row]
+            })
+            .bind(to: viewModel.inputs.stockSelected)
+            .disposed(by: bag)
+        
         viewModel.outputs.favoriteStocks
             .asDriver(onErrorDriveWith: .empty())
             .drive(onNext: { [weak self] in
@@ -58,13 +65,6 @@ final class FavoriteStockViewController: BaseStockViewController {
             .drive(onNext: { [weak self] in
                 self?.remove(stock: $0)
             })
-            .disposed(by: bag)
-        
-        tableView.rx.itemSelected
-            .map({ [unowned self] in
-                return self.stocks[$0.row]
-            })
-            .bind(to: viewModel.inputs.stockSelected)
             .disposed(by: bag)
     }
 

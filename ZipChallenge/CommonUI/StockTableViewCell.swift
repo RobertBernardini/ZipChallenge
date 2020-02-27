@@ -40,9 +40,10 @@ class StockTableViewCell: UITableViewCell {
     
     override func awakeFromNib() {
         super.awakeFromNib()
-        percentageChangeView.layer.cornerRadius = 5
         logoImage.layer.cornerRadius = 5
         favoriteButton.layer.cornerRadius = 5
+        percentageChangeView.backgroundColor = .clear
+        percentageChangeView.layer.cornerRadius = 5
     }
     
     func updateView() {
@@ -56,12 +57,13 @@ class StockTableViewCell: UITableViewCell {
             favoriteButton.isSelected = false
             return
         }
-        logoImage.kf.setImage(with: data.stockCompanyLogo)
+        let logoURL = URL(string: data.stockCompanyLogo)
+        logoImage.kf.setImage(with: logoURL)
         symbolLabel.text = data.stockSymbol
         nameLabel.text = data.stockName
         priceLabel.text = data.stockPrice
         percentageChangeLabel.text = data.stockPercentageChange
-        percentageChangeView.backgroundColor = data.isStockPercentageChangePositive ? .green : .red
+        percentageChangeView.backgroundColor = data.stockPercentageChangeColor
         favoriteButton.isSelected = data.isFavoriteStock
     }
     

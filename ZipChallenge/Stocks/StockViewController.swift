@@ -11,14 +11,13 @@ import RxSwift
 import RxCocoa
 
 final class StockViewController: BaseStockViewController {
-    @IBOutlet var loadingView: UIActivityIndicatorView!
-    
     typealias ViewModel = StockViewModel
     var viewModel: StockViewModel!
     
     private lazy var refreshHandler: RefreshHandler = {
         RefreshHandler(view: tableView)
     }()
+    private var stocksInView: [StockModel] = []
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -30,18 +29,15 @@ final class StockViewController: BaseStockViewController {
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         viewModel.inputs.fetchCachedStocks.accept(())
-        loadingView.startAnimating()
     }
 
     override func configureUserInterface() {
         super.configureUserInterface()
         navigationItem.title = "Stocks"
-        tableView.isHidden = true
     }
     
     func bindUserInterface() {
         refreshHandler.refresh
-            .startWith(())
             .bind(to: viewModel.inputs.fetchStocks)
             .disposed(by: bag)
         
@@ -50,6 +46,58 @@ final class StockViewController: BaseStockViewController {
                 return self.stocks[$0.row]
             })
             .bind(to: viewModel.inputs.stockSelected)
+            .disposed(by: bag)
+        
+        tableView.rx.willDisplayCell
+            .map({ [unowned self] cellTuple -> Void in
+                let stock = self.stocks[cellTuple.indexPath.row]
+                self.stocksInView.append(stock)
+            })
+            .subscribe()
+            .disposed(by: bag)
+        
+        tableView.rx.didEndDisplayingCell
+            .map({ [unowned self] cellTuple -> Void in
+                let stock = self.stocks[cellTuple.indexPath.row]
+                guard let index = self.stocksInView.firstIndex(of: stock) else { return }
+                self.stocksInView.remove(at: index)
+            })
+            .subscribe()
+            .disposed(by: bag)
+        
+        let fetchProfilesSubject = PublishSubject<[StockModel]>()
+        tableView.rx.didEndDragging
+            .map({ [unowned self] decelerating -> Void in
+                if decelerating == false {
+                    fetchProfilesSubject.onNext(self.stocksInView)
+                }
+            })
+            .asObservable()
+            .subscribe()
+            .disposed(by: bag)
+
+        let didEndDecelerating = tableView.rx.didEndDecelerating
+            .map({ [unowned self] in self.stocksInView })
+            .asObservable()
+        
+        let didScrollToTop = tableView.rx.didScrollToTop
+            .map({ [unowned self] in self.stocksInView })
+            .asObservable()
+
+        Observable.merge(
+            [fetchProfilesSubject.asObservable(),
+             didEndDecelerating,
+             didScrollToTop])
+            .map({ stocks -> [[StockModel]] in
+                let stocksToUpdate = stocks.filter({ $0.hasProfileData == false })
+                return stocksToUpdate.toChunks(of: 3)
+            })
+            .asObservable()
+            .subscribe(onNext: {
+                $0.forEach({ [weak self] in
+                    self?.viewModel.inputs.fetchProfiles.accept($0)
+                })
+            })
             .disposed(by: bag)
         
         viewModel.outputs.dataInitialised
@@ -61,20 +109,20 @@ final class StockViewController: BaseStockViewController {
             .disposed(by: bag)
         
         viewModel.outputs.stocks
-            .do( onError: { [weak self] error in
-                self?.refreshHandler.end()
-                self?.loadingView.stopAnimating()
-                self?.loadingView.isHidden = true
-                self?.showErrorAlert(error: error)
-                self?.tableView.isHidden = false
-            })
             .asDriver(onErrorDriveWith: .empty())
             .drive(onNext: { [weak self] in
-                self?.refreshHandler.end()
-                self?.loadingView.stopAnimating()
-                self?.stocks = $0
-                self?.tableView.reloadData()
-                self?.tableView.isHidden = ($0.count == 0)
+                guard let self = self else { return }
+                self.refreshHandler.end()
+                self.stocks = $0
+                self.tableView.reloadData()
+                
+                // Fire signal to fetch stock profiles when the data is
+                // first loaded. A delay is needed so that the persistant
+                // data has time to load.
+                let delay = DispatchTime.now() + 1
+                DispatchQueue.main.asyncAfter(deadline: delay) {
+                    fetchProfilesSubject.onNext(self.stocksInView)
+                }
             })
             .disposed(by: bag)
         
@@ -85,7 +133,7 @@ final class StockViewController: BaseStockViewController {
                 self?.reloadCells(for: $0)
             })
             .disposed(by: bag)
-
+        
         viewModel.outputs.favoriteStock
             .asDriver(onErrorDriveWith: .empty())
             .drive(onNext: { [weak self] in
@@ -100,7 +148,3 @@ final class StockViewController: BaseStockViewController {
 }
 
 extension StockViewController: ViewModelable {}
-
-// Have used traditional way of setting up tableview as it allows more control over updating just
-// one cell of the tableview. If I bind the stocks behavior relay to the table view every time
-// I update it it will refresh the whole table when I may just want to update one cell.

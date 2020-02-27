@@ -11,22 +11,22 @@ import Foundation
 struct StockProfileList  {
     struct StockProfile {
         struct StockProfileData {
-            let price: Double
-            let beta: String
-            let volAvg: String
-            let mktCap: String
-            let lastDiv: String
-            let range: String
-            let changes: Double
-            let changesPercentage: String
-            let companyName: String
-            let exchange: String
-            let industry: String
-            let website: String
-            let companyDescription: String
-            let ceo: String
-            let sector: String
-            let image: String
+            let price: Double?
+            let beta: String?
+            let volAvg: String?
+            let mktCap: String?
+            let lastDiv: String?
+            let range: String?
+            let changes: Double?
+            let changesPercentage: String?
+            let companyName: String?
+            let exchange: String?
+            let industry: String?
+            let website: String?
+            let companyDescription: String?
+            let ceo: String?
+            let sector: String?
+            let image: String?
         }
         
         let symbol: String

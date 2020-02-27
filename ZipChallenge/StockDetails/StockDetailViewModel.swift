@@ -13,11 +13,11 @@ import RxCocoa
 protocol StockDetailViewModelInputs {
     var startUpdates: PublishRelay<Void> { get }
     var stopUpdatesAndSave: PublishRelay<StockModel> { get }
-//    var fetchPrice: PublishRelay<Void> { get }
     var fetchPriceHistory: PublishRelay<Void> { get }
 }
 
 protocol StockDetailViewModelOutputs {
+    var stock: StockModel { get }
     var updatedStock: Observable<StockModel> { get }
     var historicalPrices: Observable<[StockDetailHistorical]> { get }
 }
@@ -34,16 +34,15 @@ class ZipStockDetailViewModel {
     // Inputs
     let startUpdates = PublishRelay<Void>()
     let stopUpdatesAndSave = PublishRelay<StockModel>()
-//    let fetchPrice = PublishRelay<Void>()
     let fetchPriceHistory = PublishRelay<Void>()
     
     // Outputs
+    let stock: StockModel
     let updatedStock: Observable<StockModel>
     let historicalPrices: Observable<[StockDetailHistorical]>
     
     private let service: StockDetailService
     private let bag = DisposeBag()
-    private let stock: StockModel
     
     init(service: StockDetailService, stock: StockModel) {
         self.service = service
@@ -73,13 +72,11 @@ class ZipStockDetailViewModel {
         self.updatedStock = fetchPrice
             .flatMap({ _ -> Observable<StockModel> in
                 return service.fetchPrice(for: stock)
-                    .asObservable()
             })
         
         self.historicalPrices = self.fetchPriceHistory
             .flatMap({ _ -> Observable<[StockDetailHistorical]> in
                 return service.fetchPriceHistory(for: stock)
-                    .asObservable()
             })
     }
 }

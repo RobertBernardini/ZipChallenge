@@ -14,7 +14,6 @@ protocol FavoriteStockViewModelInputs {
     var startUpdates: PublishRelay<Void> { get }
     var stopUpdatesAndSave: PublishRelay<[StockModel]> { get }
     var fetchFavoriteStocks: PublishRelay<Void> { get }
-//    var fetchPrices: PublishRelay<Void> { get }
     var removeFromFavoriteStock: PublishRelay<StockModel> { get }
     var stockSelected: PublishRelay<StockModel> { get }
 }
@@ -39,7 +38,6 @@ class ZipFavoriteStockViewModel {
     let startUpdates = PublishRelay<Void>()
     let stopUpdatesAndSave = PublishRelay<[StockModel]>()
     let fetchFavoriteStocks = PublishRelay<Void>()
-//    let fetchPrices = PublishRelay<Void>()
     let removeFromFavoriteStock = PublishRelay<StockModel>()
     let stockSelected = PublishRelay<StockModel>()
     
@@ -85,13 +83,11 @@ class ZipFavoriteStockViewModel {
             .flatMap({ _ -> Observable<[StockModel]> in
                 let stocks = service.cachedFavoriteStock
                 return service.fetchPrices(for: stocks)
-                    .asObservable()
             })
         
         self.removedStock = self.removeFromFavoriteStock
             .flatMap({ stock -> Observable<StockModel> in
                 return service.removeFromFavorite(stock: stock)
-                    .asObservable()
             })
             
         self.showDetail = stockSelected.asDriver(onErrorDriveWith: .empty())

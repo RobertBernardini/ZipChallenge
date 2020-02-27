@@ -12,14 +12,13 @@ import CoreData
 import RxSwift
 import RxCocoa
 
-// Data Service Protocol
 protocol DataRepository {
     func fetchStocks() -> [Stock]
     func save(_ stocks: [StockPersistable])
 }
 
-// Concrete class that implements the Data Service protocol.
-// This class is used to perform any data service functions related to Core Data and the File System.
+// Class that implements the Data Repository protocol.
+// This class is used to perform any data service functions related to Core Data.
 // Fecthing from Core Data is performed on the Main Context as it will be used to update the UI.
 // Saving to and deleting data from Core Data is performed on a Background Context so as not to block the Main UI Thread.
 // This class also encapsulates obtaining and saving the Core Data contexts eliminating the need to call the App Delegate.
@@ -55,8 +54,6 @@ class ZipDataRepository: DataRepository {
             DataError.fetch(error).log()
             return []
         }
-//        guard let stocks = try? mainContext.fetch(fetchRequest) else { return [] }
-//        return stocks
     }
     
     func save(_ stocks: [StockPersistable]) {
@@ -78,13 +75,13 @@ class ZipDataRepository: DataRepository {
                 if context.hasChanges {
                     do {
                         try context.save()
+                        print("Save success")
                     } catch {
                         DataError.save(error).log()
                         print("Save error")
                     }
                     context.reset()
                 }
-                print("Save success")
             }
     }
 }

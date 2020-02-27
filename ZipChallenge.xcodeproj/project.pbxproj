@@ -10,6 +10,8 @@
 		59087E05DCAEA77665D5E550 /* Pods_ZipChallengeTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 39662845DC8BAB8FBA2ADE94 /* Pods_ZipChallengeTests.framework */; };
 		B0663707A366C3C96BBD0CF1 /* Pods_ZipChallenge.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5587D11F3F52E4063B7280F0 /* Pods_ZipChallenge.framework */; };
 		E106A85E2406B09F005F2F32 /* DateFormatter+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = E106A85D2406B09F005F2F32 /* DateFormatter+Extension.swift */; };
+		E106A8602407154A005F2F32 /* DataRepositoryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E106A85F2407154A005F2F32 /* DataRepositoryTests.swift */; };
+		E106A86224075485005F2F32 /* Array+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = E106A86124075485005F2F32 /* Array+Extensions.swift */; };
 		E1345C7624068E9E0089F840 /* Collection+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1345C7524068E9E0089F840 /* Collection+Extension.swift */; };
 		E167A5752402218E001F0DDB /* Stock+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = E167A5742402218E001F0DDB /* Stock+Extensions.swift */; };
 		E167A57724022F78001F0DDB /* StockModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = E167A57624022F78001F0DDB /* StockModel.swift */; };
@@ -30,8 +32,7 @@
 		E16A6C6B24069BE00052A43E /* BaseStockViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = E16A6C6A24069BE00052A43E /* BaseStockViewController.swift */; };
 		E16CF5D924036C2900FE5A4D /* ViewModelable.swift in Sources */ = {isa = PBXBuildFile; fileRef = E16CF5D824036C2900FE5A4D /* ViewModelable.swift */; };
 		E16CF5DD2403975C00FE5A4D /* APIRepositoryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E16CF5DC2403975C00FE5A4D /* APIRepositoryTests.swift */; };
-		E16CF5DF2403976700FE5A4D /* DataRepositoryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E16CF5DE2403976700FE5A4D /* DataRepositoryTests.swift */; };
-		E16CF5E5240397A500FE5A4D /* StockViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E16CF5E4240397A500FE5A4D /* StockViewModelTests.swift */; };
+		E16CF5DF2403976700FE5A4D /* CacheRepositoryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E16CF5DE2403976700FE5A4D /* CacheRepositoryTests.swift */; };
 		E16CF5E7240398A500FE5A4D /* StockDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E16CF5E6240398A500FE5A4D /* StockDetailView.swift */; };
 		E16CF5E9240398FC00FE5A4D /* ViewDisplayable.swift in Sources */ = {isa = PBXBuildFile; fileRef = E16CF5E8240398FC00FE5A4D /* ViewDisplayable.swift */; };
 		E19DDBC7240366D600DA039B /* StockService.swift in Sources */ = {isa = PBXBuildFile; fileRef = E19DDBC6240366D600DA039B /* StockService.swift */; };
@@ -78,6 +79,8 @@
 		AE6F523AE8DDBF2EB62D617C /* Pods-ZipChallengeTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ZipChallengeTests.debug.xcconfig"; path = "Target Support Files/Pods-ZipChallengeTests/Pods-ZipChallengeTests.debug.xcconfig"; sourceTree = "<group>"; };
 		CE7451CD653ACFCB6B85DABC /* Pods-ZipChallenge.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ZipChallenge.debug.xcconfig"; path = "Target Support Files/Pods-ZipChallenge/Pods-ZipChallenge.debug.xcconfig"; sourceTree = "<group>"; };
 		E106A85D2406B09F005F2F32 /* DateFormatter+Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DateFormatter+Extension.swift"; sourceTree = "<group>"; };
+		E106A85F2407154A005F2F32 /* DataRepositoryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataRepositoryTests.swift; sourceTree = "<group>"; };
+		E106A86124075485005F2F32 /* Array+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Array+Extensions.swift"; sourceTree = "<group>"; };
 		E1345C7524068E9E0089F840 /* Collection+Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Collection+Extension.swift"; sourceTree = "<group>"; };
 		E167A5742402218E001F0DDB /* Stock+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Stock+Extensions.swift"; sourceTree = "<group>"; };
 		E167A57624022F78001F0DDB /* StockModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StockModel.swift; sourceTree = "<group>"; };
@@ -98,8 +101,7 @@
 		E16A6C6A24069BE00052A43E /* BaseStockViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BaseStockViewController.swift; sourceTree = "<group>"; };
 		E16CF5D824036C2900FE5A4D /* ViewModelable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewModelable.swift; sourceTree = "<group>"; };
 		E16CF5DC2403975C00FE5A4D /* APIRepositoryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = APIRepositoryTests.swift; sourceTree = "<group>"; };
-		E16CF5DE2403976700FE5A4D /* DataRepositoryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataRepositoryTests.swift; sourceTree = "<group>"; };
-		E16CF5E4240397A500FE5A4D /* StockViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StockViewModelTests.swift; sourceTree = "<group>"; };
+		E16CF5DE2403976700FE5A4D /* CacheRepositoryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CacheRepositoryTests.swift; sourceTree = "<group>"; };
 		E16CF5E6240398A500FE5A4D /* StockDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StockDetailView.swift; sourceTree = "<group>"; };
 		E16CF5E8240398FC00FE5A4D /* ViewDisplayable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewDisplayable.swift; sourceTree = "<group>"; };
 		E19DDBC6240366D600DA039B /* StockService.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StockService.swift; sourceTree = "<group>"; };
@@ -252,8 +254,8 @@
 			children = (
 				E1FACAD723FFB20F00D46DB3 /* Info.plist */,
 				E16CF5DC2403975C00FE5A4D /* APIRepositoryTests.swift */,
-				E16CF5DE2403976700FE5A4D /* DataRepositoryTests.swift */,
-				E16CF5E4240397A500FE5A4D /* StockViewModelTests.swift */,
+				E16CF5DE2403976700FE5A4D /* CacheRepositoryTests.swift */,
+				E106A85F2407154A005F2F32 /* DataRepositoryTests.swift */,
 			);
 			path = ZipChallengeTests;
 			sourceTree = "<group>";
@@ -295,6 +297,7 @@
 				E1E7DC4F240524AD00E95C9A /* Double+Extension.swift */,
 				E1E7DC51240529B500E95C9A /* UIViewController+Extensions.swift */,
 				E1345C7524068E9E0089F840 /* Collection+Extension.swift */,
+				E106A86124075485005F2F32 /* Array+Extensions.swift */,
 			);
 			path = Extensions;
 			sourceTree = "<group>";
@@ -513,6 +516,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				E1FACAFF23FFB25F00D46DB3 /* StockProtocols.swift in Sources */,
+				E106A86224075485005F2F32 /* Array+Extensions.swift in Sources */,
 				E1345C7624068E9E0089F840 /* Collection+Extension.swift in Sources */,
 				E1FACAFB23FFB25F00D46DB3 /* StockList.swift in Sources */,
 				E1FACB0123FFB25F00D46DB3 /* StockViewController.swift in Sources */,
@@ -563,9 +567,9 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				E16CF5E5240397A500FE5A4D /* StockViewModelTests.swift in Sources */,
 				E16CF5DD2403975C00FE5A4D /* APIRepositoryTests.swift in Sources */,
-				E16CF5DF2403976700FE5A4D /* DataRepositoryTests.swift in Sources */,
+				E16CF5DF2403976700FE5A4D /* CacheRepositoryTests.swift in Sources */,
+				E106A8602407154A005F2F32 /* DataRepositoryTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

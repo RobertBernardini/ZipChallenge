@@ -13,8 +13,8 @@ import RxCocoa
 protocol FavoriteStockService {
     var cachedFavoriteStock: [StockModel] { get }
     
-    func fetchPrices(for stocks: [StockModel]) -> Single<[StockModel]>
-    func removeFromFavorite(stock: StockModel) -> Single<StockModel>
+    func fetchPrices(for stocks: [StockModel]) -> Observable<[StockModel]>
+    func removeFromFavorite(stock: StockModel) -> Observable<StockModel>
     func save(stocks: [StockModel])
 }
 
@@ -37,7 +37,7 @@ class ZipFavoriteStockService {
 }
 
 extension ZipFavoriteStockService: FavoriteStockService {
-    func fetchPrices(for stocks: [StockModel]) -> Single<[StockModel]> {
+    func fetchPrices(for stocks: [StockModel]) -> Observable<[StockModel]> {
         let symbols = stocks.map({ $0.symbol })
         let pricesEndpoint = Endpoint.stockPriceList(stockSymbols: symbols)
         return apiRepository.fetch(type: StockPriceList.self, at: pricesEndpoint)
@@ -51,12 +51,21 @@ extension ZipFavoriteStockService: FavoriteStockService {
                 self?.cacheRepository.update(stocks: updatedStocks)
                 return updatedStocks
             })
+            .asObservable()
+            .materialize()
+            .flatMap({ event -> Observable<[StockModel]> in
+                switch event {
+                case .next(let updatedStocks): return Observable.just(updatedStocks)
+                case .error: return .empty()
+                case .completed: return .empty()
+                }
+            })
     }
     
-    func removeFromFavorite(stock: StockModel) -> Single<StockModel> {
+    func removeFromFavorite(stock: StockModel) -> Observable<StockModel> {
         dataRepository.save([stock])
         cacheRepository.update(stocks: [stock])
-        return Single.just(stock)
+        return Observable.just(stock)
     }
     
     func save(stocks: [StockModel]) {

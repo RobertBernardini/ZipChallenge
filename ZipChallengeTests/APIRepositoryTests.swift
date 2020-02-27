@@ -7,27 +7,64 @@
 //
 
 import XCTest
+import RxSwift
 @testable import ZipChallenge
 
 class APIRepositoryTests: XCTestCase {
+    var apiRepository: APIRepository!
+    var bag: DisposeBag!
     
     override func setUp() {
-        // Put setup code here. This method is called before the invocation of each test method in the class.
+        apiRepository = ZipAPIRepository()
+        bag = DisposeBag()
     }
 
-    override func tearDown() {
-        // Put teardown code here. This method is called after the invocation of each test method in the class.
+    func testStocksRetrieved() {
+        let endpoint = Endpoint.stockList
+        apiRepository.fetch(type: StockList.self, at: endpoint)
+            .map({
+                let stocks = $0.stocks
+                XCTAssertTrue(stocks.count > 0)
+            })
+        .subscribe()
+        .disposed(by: bag)
     }
-
-    func testExample() {
-        // This is an example of a functional test case.
-        // Use XCTAssert and related functions to verify your tests produce the correct results.
+    
+    func testStockPricesRetrieved() {
+        let symbols = ["AAPL", "AMZN"]
+        let endpoint = Endpoint.stockPriceList(stockSymbols: symbols)
+        apiRepository.fetch(type: StockPriceList.self, at: endpoint)
+            .map({
+                let prices = $0.prices
+                XCTAssertTrue(prices.count > 0)
+            })
+        .subscribe()
+        .disposed(by: bag)
     }
-
-    func testPerformanceExample() {
-        // This is an example of a performance test case.
-        self.measure {
-            // Put the code you want to measure the time of here.
-        }
+    
+    func testStockProfilesRetrieved() {
+        let symbols = ["AAPL", "AMZN"]
+        let endpoint = Endpoint.stockProfileList(stockSymbols: symbols)
+        apiRepository.fetch(type: StockProfileList.self, at: endpoint)
+            .map({
+                let profiles = $0.profiles
+                XCTAssertTrue(profiles.count > 0)
+            })
+        .subscribe()
+        .disposed(by: bag)
+    }
+    
+    func testStockHistoryRetrieved() {
+        let symbol = "AAPL"
+        let endDate = Date()
+        let startDate = Calendar.current.date(byAdding: .year, value: -1, to: endDate) ?? Date()
+        let endpoint = Endpoint.stockHistory(stockSymbol: symbol, startDate: startDate, endDate: endDate)
+        apiRepository.fetch(type: StockHistory.self, at: endpoint)
+            .map({
+                let stockHistoricals = $0.historicalMoments
+                XCTAssertTrue(stockHistoricals.count > 0)
+            })
+        .subscribe()
+        .disposed(by: bag)
     }
 }

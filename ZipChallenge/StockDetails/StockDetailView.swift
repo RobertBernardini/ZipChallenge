@@ -25,6 +25,13 @@ class StockDetailView: UIView {
         didSet { updateView() }
     }
     
+    override func awakeFromNib() {
+        super.awakeFromNib()
+        logoImage.layer.cornerRadius = 10
+        percentageChangeView.backgroundColor = .clear
+        percentageChangeView.layer.cornerRadius = 5
+    }
+    
     func updateView() {
         guard let data = displayData else {
             logoImage.image = nil
@@ -39,7 +46,8 @@ class StockDetailView: UIView {
             lastDividendLabel.text = ""
             return
         }
-        logoImage.kf.setImage(with: data.stockCompanyLogo)
+        let logoURL = URL(string: data.stockCompanyLogo)
+        logoImage.kf.setImage(with: logoURL)
         symbolLabel.text = data.stockSymbol
         nameLabel.text = data.stockName
         sectorLabel.text = data.stockSector
@@ -47,7 +55,7 @@ class StockDetailView: UIView {
         priceLabel.text = data.stockPrice
         changesLabel.text = data.stockChanges
         percentageChangeLabel.text = data.stockPercentageChange
-        percentageChangeView.backgroundColor = data.isStockPercentageChangePositive ? .green : .red
+        percentageChangeView.backgroundColor = data.stockPercentageChangeColor
         lastDividendLabel.text = data.stockLastDividend
     }
 }

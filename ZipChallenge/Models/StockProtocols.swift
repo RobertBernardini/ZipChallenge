@@ -7,9 +7,10 @@
 //
 
 import Foundation
+import UIKit
 
 protocol StockPersistable {
-    var companyLogo: URL? { get }
+    var companyLogo: String { get }
     var percentageChange: String { get }
     var changes: Double { get }
     var symbol: String { get }
@@ -19,12 +20,13 @@ protocol StockPersistable {
     var sector: String { get }
     var industry: String { get }
     var isFavorite: Bool { get }
+    var hasProfileData: Bool { get }
 }
 
 protocol StockDisplayable {
-    var stockCompanyLogo: URL? { get }
+    var stockCompanyLogo: String { get }
     var stockPercentageChange: String { get }
-    var isStockPercentageChangePositive: Bool { get }
+    var stockPercentageChangeColor: UIColor { get }
     var stockSymbol: String { get }
     var stockName: String { get }
     var stockPrice: String { get }

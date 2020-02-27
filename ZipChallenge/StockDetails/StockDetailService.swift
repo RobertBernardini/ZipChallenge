@@ -11,8 +11,8 @@ import RxSwift
 import RxCocoa
 
 protocol StockDetailService {
-    func fetchPrice(for stock: StockModel) -> Single<StockModel>
-    func fetchPriceHistory(for stock: StockModel) -> Single<[StockDetailHistorical]>
+    func fetchPrice(for stock: StockModel) -> Observable<StockModel>
+    func fetchPriceHistory(for stock: StockModel) -> Observable<[StockDetailHistorical]>
     func save(stock: StockModel)
 }
 
@@ -33,7 +33,7 @@ class ZipStockDetailService {
 }
 
 extension ZipStockDetailService: StockDetailService {
-    func fetchPrice(for stock: StockModel) -> Single<StockModel> {
+    func fetchPrice(for stock: StockModel) -> Observable<StockModel> {
         let symbols = [stock.symbol]
         let pricesEndpoint = Endpoint.stockPriceList(stockSymbols: symbols)
         return apiRepository.fetch(type: StockPriceList.self, at: pricesEndpoint)
@@ -44,9 +44,18 @@ extension ZipStockDetailService: StockDetailService {
                 self?.cacheRepository.update(stocks: [updatedStock])
                 return updatedStock
             })
+            .asObservable()
+            .materialize()
+            .flatMap({ event -> Observable<StockModel> in
+                switch event {
+                case .next(let updatedStocks): return Observable.just(updatedStocks)
+                case .error: return .empty()
+                case .completed: return .empty()
+                }
+            })
     }
     
-    func fetchPriceHistory(for stock: StockModel) -> Single<[StockDetailHistorical]> {
+    func fetchPriceHistory(for stock: StockModel) -> Observable<[StockDetailHistorical]> {
         let today = Date()
         let threeYearsAgo = Calendar.current.date(byAdding: .year, value: -3, to: today) ?? Date()
         let historicalEndpoint = Endpoint.stockHistory(stockSymbol: stock.symbol, startDate: threeYearsAgo, endDate: today)
@@ -54,6 +63,15 @@ extension ZipStockDetailService: StockDetailService {
             .map({ history -> [StockDetailHistorical] in
                 let historicals = history.historicalMoments
                 return historicals
+            })
+            .asObservable()
+            .materialize()
+            .flatMap({ event -> Observable<[StockDetailHistorical]> in
+                switch event {
+                case .next(let updatedStocks): return Observable.just(updatedStocks)
+                case .error: return .empty()
+                case .completed: return .empty()
+                }
             })
     }
     

@@ -23,6 +23,7 @@ final class StockDetailViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        stock = viewModel.outputs.stock
         configureUserInterface()
         bindUserInterface()
         viewModel.inputs.startUpdates.accept(())
