@@ -10,8 +10,11 @@ import Foundation
 import RxSwift
 import RxCocoa
 
+/*
+ View model that fetches the stock list and profile
+ */
 protocol StockViewModelInputs {
-    var initialiseData: PublishRelay<Void> { get }
+    var initializeData: PublishRelay<Void> { get }
     var fetchCachedStocks: PublishRelay<Void> { get }
     var fetchStocks: PublishRelay<Void> { get }
     var fetchProfiles: PublishRelay<[StockModel]> { get }
@@ -20,7 +23,7 @@ protocol StockViewModelInputs {
 }
 
 protocol StockViewModelOutputs {
-    var dataInitialised: Observable<Void> { get }
+    var dataInitialized: Observable<Void> { get }
     var stocks: Observable<[StockModel]> { get }
     var updatedStocks: Observable<[StockModel]> { get }
     var favoriteStock: Observable<StockModel> { get }
@@ -37,7 +40,7 @@ class ZipStockViewModel {
     var outputs: StockViewModelOutputs { self }
     
     // Inputs
-    let initialiseData = PublishRelay<Void>()
+    let initializeData = PublishRelay<Void>()
     let fetchCachedStocks = PublishRelay<Void>()
     let fetchStocks = PublishRelay<Void>()
     let fetchProfiles = PublishRelay<[StockModel]>()
@@ -45,7 +48,7 @@ class ZipStockViewModel {
     let stockSelected = PublishRelay<StockModel>()
     
     // Outputs
-    let dataInitialised: Observable<Void>
+    let dataInitialized: Observable<Void>
     let stocks: Observable<[StockModel]>
     let updatedStocks: Observable<[StockModel]>
     let favoriteStock: Observable<StockModel>
@@ -56,7 +59,7 @@ class ZipStockViewModel {
     
     init(service: StockService) {
         self.service = service
-        self.dataInitialised = self.initialiseData
+        self.dataInitialized = self.initializeData
             .flatMap({
                 service.initialiseData()
             })

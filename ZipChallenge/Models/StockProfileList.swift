@@ -8,6 +8,9 @@
 
 import Foundation
 
+/*
+ Used to parse the Company Profile JSON response.
+ */
 struct StockProfileList  {
     struct StockProfile {
         struct StockProfileData {

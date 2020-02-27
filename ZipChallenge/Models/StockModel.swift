@@ -10,6 +10,14 @@
 import Foundation
 import UIKit
 
+/*
+ Stock Model is the main object passed throughout the app that
+ contains the stock data.
+ It conforms to the various protocols so that it can be used to
+ persist and display data.
+ It also conforms to the Equatable protocol in order to be compared
+ more effectively.
+ */
 struct StockModel {
     var symbol: String
     var name: String

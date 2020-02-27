@@ -8,6 +8,9 @@
 
 import Foundation
 
+/*
+ Error enums used throughout the app.
+ */
 enum APIError: Error {
     case invalidURL
     case internet

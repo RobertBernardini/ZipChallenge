@@ -8,6 +8,9 @@
 
 import Foundation
 
+/*
+ Used to parse the Stock History JSON response.
+*/
 struct StockHistory {
     struct StockHistoricalMoment {
         let date: Date
@@ -38,6 +41,11 @@ extension StockHistory: Decodable {
 
 extension StockHistory.StockHistoricalMoment: Decodable {}
 
+/*
+ The Stock Historical Moment conforms to the Stock Detail Historical protocol
+ in order to pass the data to the price chart. The closing price is used as
+ the price in the chart.
+ */
 extension StockHistory.StockHistoricalMoment: StockDetailHistorical {
     var stockDate: Date { date }
     var stockPrice: Double { close }

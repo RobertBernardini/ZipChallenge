@@ -8,6 +8,11 @@
 
 import Foundation
 
+/*
+ Enum used to represent the range options of the price historical data.
+ It is also used to return the start dates of the data and the messages
+ displayed to the user.
+ */
 enum PriceChartPeriod {
     case threeMonths
     case sixMonths
@@ -42,6 +47,10 @@ extension PriceChartPeriod {
 
 extension PriceChartPeriod: CaseIterable {}
 
+/*
+ Protocol displayable passed to the Price Chart tp display the historical
+ price data for the chosen period.
+ */
 protocol PriceChartDisplayable {
     var duration: PriceChartPeriod { get }
     var historicalPrices: [StockDetailHistorical] { get }

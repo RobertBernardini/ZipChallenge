@@ -8,6 +8,9 @@
 
 import Foundation
 
+/*
+ Used to parse the Stock Price JSON response.
+*/
 struct StockPriceList {
     struct StockPrice {
         let symbol: String

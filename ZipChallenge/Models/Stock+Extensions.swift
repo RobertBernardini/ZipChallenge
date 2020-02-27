@@ -9,6 +9,11 @@
 import Foundation
 import CoreData
 
+/*
+ Extension of the Stock Core Data object so that it can be
+ updated with data from an opbject that conforms to the
+ StockPersistable protocol.
+ */
 extension Stock {
     func update(with stock: StockPersistable) {
         companyLogo = stock.companyLogo

@@ -15,6 +15,8 @@ import RxCocoa
  It is a sub-class of Base Stock View Controller.
  Rx is used to update data coming in from the view model and to send signals
  to the view model to fetch data.
+ The fetching of the profile data only occurs once the table view has stopped
+ scrolling.
  */
 final class StockViewController: BaseStockViewController {
     typealias ViewModel = StockViewModel
@@ -29,7 +31,7 @@ final class StockViewController: BaseStockViewController {
         super.viewDidLoad()
         configureUserInterface()
         bindUserInterface()
-        viewModel.inputs.initialiseData.accept(())
+        viewModel.inputs.initializeData.accept(())
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -111,7 +113,7 @@ final class StockViewController: BaseStockViewController {
             })
             .disposed(by: bag)
         
-        viewModel.outputs.dataInitialised
+        viewModel.outputs.dataInitialized
             .asDriver(onErrorJustReturn: ())
             .drive(onNext: { [weak self] _ in
                 self?.viewModel.inputs.fetchCachedStocks.accept(())

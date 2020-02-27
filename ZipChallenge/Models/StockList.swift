@@ -9,6 +9,9 @@
 
 import Foundation
 
+/*
+ Used to parse the Stock List JSON response.
+ */
 struct StockList {
     struct Stock {
         let symbol: String

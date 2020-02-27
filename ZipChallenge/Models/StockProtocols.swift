@@ -9,6 +9,9 @@
 import Foundation
 import UIKit
 
+/*
+ Protocol passed to the Data Repository to persist the data.
+ */
 protocol StockPersistable {
     var companyLogo: String { get }
     var percentageChange: String { get }
@@ -23,6 +26,10 @@ protocol StockPersistable {
     var hasProfileData: Bool { get }
 }
 
+/*
+ Protocol used to pass the stock data to the list views so that it
+ can be displayed to the user.
+ */
 protocol StockDisplayable {
     var stockCompanyLogo: String { get }
     var stockPercentageChange: String { get }
@@ -33,6 +40,11 @@ protocol StockDisplayable {
     var isFavoriteStock: Bool { get }
 }
 
+/*
+ Protocol used to pass the stock data to the detail views so that
+ it can be displayed to the user. It conforms to the StockDisplayable
+ protocol.
+ */
 protocol StockDetailDisplayable: StockDisplayable {
     var stockChanges: String { get }
     var stockLastDividend: String { get }
@@ -40,6 +52,10 @@ protocol StockDetailDisplayable: StockDisplayable {
     var stockIndustry: String { get }
 }
 
+/*
+ Protocol used to parse the historical price data so that it can be
+ charted on the price chart.
+ */
 protocol StockDetailHistorical {
     var stockDate: Date { get }
     var stockPrice: Double { get }
