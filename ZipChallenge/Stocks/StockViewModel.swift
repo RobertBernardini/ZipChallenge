@@ -81,7 +81,6 @@ class ZipStockViewModel {
         
         self.updatedStocks = self.fetchProfiles
             .flatMap({ stocks -> Observable<[StockModel]> in
-                print("\(stocks.map({ $0.symbol }).description)")
                 return service.fetchStockProfiles(for: stocks)
             })
         

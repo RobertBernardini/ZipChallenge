@@ -25,10 +25,7 @@ class ZipStockDetailService {
     private let cacheRepository: CacheRepository
     private let apiRepository: APIRepository
     
-    init(
-        dataRepository: DataRepository,
-        cacheRepository: CacheRepository,
-        apiRepository: APIRepository
+    init(dataRepository: DataRepository, cacheRepository: CacheRepository, apiRepository: APIRepository
     ) {
         self.dataRepository = dataRepository
         self.cacheRepository = cacheRepository
@@ -62,12 +59,12 @@ extension ZipStockDetailService: StockDetailService {
     func fetchPriceHistory(for stock: StockModel) -> Observable<[StockDetailHistorical]> {
         let today = Date()
         let threeYearsAgo = Calendar.current.date(byAdding: .year, value: -3, to: today) ?? Date()
-        let historicalEndpoint = Endpoint.stockHistory(stockSymbol: stock.symbol, startDate: threeYearsAgo, endDate: today)
+        let historicalEndpoint = Endpoint.stockHistory(
+            stockSymbol: stock.symbol,
+            startDate: threeYearsAgo,
+            endDate: today)
         return apiRepository.fetch(type: StockHistory.self, at: historicalEndpoint)
-            .map({ history -> [StockDetailHistorical] in
-                let historicals = history.historicalMoments
-                return historicals
-            })
+            .map({ $0.historicalMoments })
             .asObservable()
             .materialize()
             .flatMap({ event -> Observable<[StockDetailHistorical]> in

@@ -13,7 +13,7 @@ import RxSwift
 import RxCocoa
 
 /*
- Class that is used to perform any data service functions related to peristent data i.e. Core Data.
+ Repository that is used to perform any data service functions related to peristent data i.e. Core Data.
  Fecthing from Core Data is performed on the Main Context as it will be used to update the UI.
  Saving to and deleting data from Core Data is performed on a Background Context so as not to block the Main UI Thread.
  This class also encapsulates obtaining and saving the Core Data contexts eliminating the need to call the App Delegate.
@@ -83,10 +83,8 @@ class ZipDataRepository: DataRepository {
                 if context.hasChanges {
                     do {
                         try context.save()
-                        print("Save success")
                     } catch {
                         DataError.save(error).log()
-                        print("Save error")
                     }
                     context.reset()
                 }

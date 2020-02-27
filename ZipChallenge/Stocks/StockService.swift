@@ -34,11 +34,7 @@ class ZipStockService {
     private let cacheRepository: CacheRepository
     private let apiRepository: APIRepository
     
-    init(
-        dataRepository: DataRepository,
-        cacheRepository: CacheRepository,
-        apiRepository: APIRepository
-    ) {
+    init(dataRepository: DataRepository, cacheRepository: CacheRepository, apiRepository: APIRepository) {
         self.dataRepository = dataRepository
         self.cacheRepository = cacheRepository
         self.apiRepository = apiRepository
@@ -90,6 +86,7 @@ extension ZipStockService: StockService {
         let symbols = stocks.map({ $0.symbol })
         let profilesEndpoint = Endpoint.stockProfileList(stockSymbols: symbols)
         let response: Single<[StockProfileList.StockProfile]>
+        // The response JSON format changes if only fetching for one stock or many.
         if symbols.count > 1 {
             response = apiRepository.fetch(type: StockProfileList.self, at: profilesEndpoint).map({ $0.profiles })
         } else {

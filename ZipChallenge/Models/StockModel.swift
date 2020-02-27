@@ -124,8 +124,8 @@ extension StockModel: StockDetailDisplayable {
     var stockIndustry: String { industry }
 }
 
-// Should only be equatable if two stocks contain the same "symbol"
 extension StockModel: Equatable {
+    // Should only be equatable if two stocks contain the same "symbol"
     static func ==(lhs: StockModel, rhs: StockModel) -> Bool {
         return lhs.symbol == rhs.symbol
     }

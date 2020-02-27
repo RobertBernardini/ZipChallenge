@@ -12,7 +12,9 @@ import RxSwift
 import Alamofire
 import RxAlamofire
 
-// Enum used to configure the end point for each API request.
+/*
+ Enum used to configure the end point for each API request.
+ */
 enum Endpoint {
     case stockList
     case stockHistory(stockSymbol: String, startDate: Date, endDate: Date)
@@ -64,12 +66,13 @@ enum Endpoint {
     }
 }
 
+/*
+ Repository thatfecthes and decodes the API data from JSON into the models used throughout the project.
+ */
 protocol APIRepository {
     func fetch<T: Decodable>(type: T.Type, at endpoint: Endpoint) -> Single<T>
 }
 
-// Class that implements the API Repository protocol.
-// This class is used to fetch and decode the API data from JSON into the models used throughout the project.
 class ZipAPIRepository: APIRepository {
     func fetch<T>(type: T.Type, at endpoint: Endpoint) -> Single<T> where T : Decodable {
         guard let request = endpoint.request else { return Single.error(APIError.invalidURL) }

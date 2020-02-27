@@ -24,7 +24,7 @@ class BaseStockViewController: UIViewController {
     func configureUserInterface() {
         navigationItem.title = "Stocks"
         navigationController?.navigationBar.prefersLargeTitles = true
-        tableView.rowHeight = 150
+        tableView.rowHeight = UITableView.automaticDimension
         tableView.dataSource = self
         let nib = UINib(nibName: StockTableViewCell.Constants.stockCellName, bundle: nil)
         tableView.register(nib, forCellReuseIdentifier: StockTableViewCell.Constants.stockCellIdentifier)
