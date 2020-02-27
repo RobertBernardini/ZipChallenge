@@ -65,6 +65,7 @@ final class FavoriteStockViewController: BaseStockViewController {
         
         tableView.rx.didEndDisplayingCell
             .map({ [unowned self] cellTuple -> Void in
+                guard cellTuple.indexPath.row < self.stocks.count else { return }
                 let stock = self.stocks[cellTuple.indexPath.row]
                 guard let index = self.stocksInView.firstIndex(of: stock) else { return }
                 self.stocksInView.remove(at: index)
