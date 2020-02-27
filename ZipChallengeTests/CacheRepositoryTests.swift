@@ -25,25 +25,27 @@ class CacheRepositoryTests: XCTestCase {
             symbol: "ZIP",
             name: "Test1",
             price: 10.00,
-            companyLogo: nil,
+            companyLogo: "",
             percentageChange: "+10",
             changes: 5,
             lastDividend: "90",
             sector: "iOS",
             industry: "Software",
-            isFavorite: true)
+            isFavorite: true,
+            hasProfileData: false)
         
         let stock2 = StockModel(
             symbol: "ABC",
             name: "Test2",
             price: 20.00,
-            companyLogo: nil,
+            companyLogo: "",
             percentageChange: "-10",
             changes: 8,
             lastDividend: "300",
             sector: "Android",
             industry: "Software",
-            isFavorite: false)
+            isFavorite: false,
+            hasProfileData: false)
         
         cacheRepository.set(stocks: [stock1, stock2])
         let stocks = cacheRepository.cachedStocks
@@ -57,13 +59,14 @@ class CacheRepositoryTests: XCTestCase {
             symbol: "ZIP",
             name: "Test1",
             price: 10.00,
-            companyLogo: nil,
+            companyLogo: "",
             percentageChange: "+10",
             changes: 5,
             lastDividend: "90",
             sector: "iOS",
             industry: "Software",
-            isFavorite: true)
+            isFavorite: true,
+            hasProfileData: false)
         
         cacheRepository.set(stocks: [stock1])
         let stocks = cacheRepository.cachedStocks
@@ -76,13 +79,14 @@ class CacheRepositoryTests: XCTestCase {
             symbol: "ZIP",
             name: "Test2",
             price: 20.00,
-            companyLogo: nil,
+            companyLogo: "",
             percentageChange: "-10",
             changes: 8,
             lastDividend: "300",
             sector: "Android",
             industry: "Software",
-            isFavorite: false)
+            isFavorite: false,
+            hasProfileData: false)
         
         cacheRepository.update(stocks: [stock2])
         let updatedStocks = cacheRepository.cachedStocks

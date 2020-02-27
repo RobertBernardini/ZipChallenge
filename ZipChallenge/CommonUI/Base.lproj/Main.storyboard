@@ -227,6 +227,7 @@
                                     <constraint firstAttribute="trailing" secondItem="0Ra-ow-sOz" secondAttribute="trailing" constant="20" id="ahp-h7-Hby"/>
                                     <constraint firstItem="iuU-rU-E4r" firstAttribute="top" secondItem="0Ra-ow-sOz" secondAttribute="bottom" constant="8" id="f34-zd-Q1w"/>
                                     <constraint firstAttribute="trailing" secondItem="iuU-rU-E4r" secondAttribute="trailing" id="iHh-vB-Eor"/>
+                                    <constraint firstItem="0Ra-ow-sOz" firstAttribute="leading" relation="greaterThanOrEqual" secondItem="pf9-zs-V4C" secondAttribute="trailing" constant="8" id="rhd-zC-Kze"/>
                                 </constraints>
                                 <connections>
                                     <outlet property="durationButton" destination="0Ra-ow-sOz" id="9lZ-dP-hb7"/>
