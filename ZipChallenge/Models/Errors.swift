@@ -10,7 +10,7 @@ import Foundation
 
 enum APIError: Error {
     case invalidURL
-    case noInternet
+    case internet
     case decoding(Error)
 }
 
@@ -18,7 +18,7 @@ extension APIError: LocalizedError {
     var errorDescription: String? {
         switch self {
         case .invalidURL: return "Invalid URL request."
-        case .noInternet: return "There is no internet connection.\nSome features of this app may be limited. Saved stock data will shown."
+        case .internet: return "There is no internet connection.\nSome features of this app may be limited."
         case .decoding(let error): return "Decoding Data: " + error.localizedDescription
         }
     }
@@ -45,7 +45,7 @@ enum MemoryError: Error {
 extension MemoryError: LocalizedError {
     var errorDescription: String? {
         switch self {
-        case .nilReference: return "Object is nil."
+        case .nilReference: return "Referencing nil object."
         }
     }
 }

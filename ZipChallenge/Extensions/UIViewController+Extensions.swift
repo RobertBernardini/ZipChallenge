@@ -10,23 +10,14 @@ import Foundation
 import UIKit
 
 extension UIViewController {
+    // Convencience alert for error messages.
     func showErrorAlert(error: Error) {
-        let alert = UIAlertController(title: "Error", message: error.localizedDescription, preferredStyle: .alert)
+        let alert = UIAlertController(
+            title: "Error",
+            message: error.localizedDescription,
+            preferredStyle: .alert)
         let action = UIAlertAction(title: "OK", style: .cancel, handler: nil)
         alert.addAction(action)
         self.present(alert, animated: true, completion: nil)
-    }
-    
-    func showPriceHistoryActionSheet(with title: String?, message: String?,handler: @escaping ((PriceChartPeriod) -> Void)) {
-        let alert = UIAlertController(title: title, message: message, preferredStyle: .actionSheet)
-        PriceChartPeriod.allCases.forEach { option in
-            let action = UIAlertAction(title: option.text, style: .default) { _ in
-                handler(option)
-            }
-            alert.addAction(action)
-        }
-        let cancelAction = UIAlertAction(title: "Cancel", style: .cancel, handler: nil)
-        alert.addAction(cancelAction)
-        present(alert, animated: true, completion: nil)
     }
 }

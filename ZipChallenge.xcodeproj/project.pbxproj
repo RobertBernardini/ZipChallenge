@@ -12,7 +12,7 @@
 		E106A85E2406B09F005F2F32 /* DateFormatter+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = E106A85D2406B09F005F2F32 /* DateFormatter+Extension.swift */; };
 		E106A8602407154A005F2F32 /* DataRepositoryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E106A85F2407154A005F2F32 /* DataRepositoryTests.swift */; };
 		E106A86224075485005F2F32 /* Array+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = E106A86124075485005F2F32 /* Array+Extensions.swift */; };
-		E1345C7624068E9E0089F840 /* Collection+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1345C7524068E9E0089F840 /* Collection+Extension.swift */; };
+		E106A86424079B23005F2F32 /* Connectivity+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = E106A86324079B23005F2F32 /* Connectivity+Extensions.swift */; };
 		E167A5752402218E001F0DDB /* Stock+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = E167A5742402218E001F0DDB /* Stock+Extensions.swift */; };
 		E167A57724022F78001F0DDB /* StockModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = E167A57624022F78001F0DDB /* StockModel.swift */; };
 		E167A5792402B4BF001F0DDB /* Error+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = E167A5782402B4BF001F0DDB /* Error+Extensions.swift */; };
@@ -81,7 +81,7 @@
 		E106A85D2406B09F005F2F32 /* DateFormatter+Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DateFormatter+Extension.swift"; sourceTree = "<group>"; };
 		E106A85F2407154A005F2F32 /* DataRepositoryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataRepositoryTests.swift; sourceTree = "<group>"; };
 		E106A86124075485005F2F32 /* Array+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Array+Extensions.swift"; sourceTree = "<group>"; };
-		E1345C7524068E9E0089F840 /* Collection+Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Collection+Extension.swift"; sourceTree = "<group>"; };
+		E106A86324079B23005F2F32 /* Connectivity+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Connectivity+Extensions.swift"; sourceTree = "<group>"; };
 		E167A5742402218E001F0DDB /* Stock+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Stock+Extensions.swift"; sourceTree = "<group>"; };
 		E167A57624022F78001F0DDB /* StockModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StockModel.swift; sourceTree = "<group>"; };
 		E167A5782402B4BF001F0DDB /* Error+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Error+Extensions.swift"; sourceTree = "<group>"; };
@@ -296,8 +296,8 @@
 				E167A5902402D59D001F0DDB /* UIApplication+Extensions.swift */,
 				E1E7DC4F240524AD00E95C9A /* Double+Extension.swift */,
 				E1E7DC51240529B500E95C9A /* UIViewController+Extensions.swift */,
-				E1345C7524068E9E0089F840 /* Collection+Extension.swift */,
 				E106A86124075485005F2F32 /* Array+Extensions.swift */,
+				E106A86324079B23005F2F32 /* Connectivity+Extensions.swift */,
 			);
 			path = Extensions;
 			sourceTree = "<group>";
@@ -517,12 +517,12 @@
 			files = (
 				E1FACAFF23FFB25F00D46DB3 /* StockProtocols.swift in Sources */,
 				E106A86224075485005F2F32 /* Array+Extensions.swift in Sources */,
-				E1345C7624068E9E0089F840 /* Collection+Extension.swift in Sources */,
 				E1FACAFB23FFB25F00D46DB3 /* StockList.swift in Sources */,
 				E1FACB0123FFB25F00D46DB3 /* StockViewController.swift in Sources */,
 				E16CF5E9240398FC00FE5A4D /* ViewDisplayable.swift in Sources */,
 				E1FACB1823FFC01500D46DB3 /* SettingsService.swift in Sources */,
 				E167A57B2402B958001F0DDB /* Coordinator.swift in Sources */,
+				E106A86424079B23005F2F32 /* Connectivity+Extensions.swift in Sources */,
 				E167A57F2402C15A001F0DDB /* StockViewModel.swift in Sources */,
 				E1FACAFC23FFB25F00D46DB3 /* StockProfileList.swift in Sources */,
 				E167A5892402C1DA001F0DDB /* StockDetailViewController.swift in Sources */,

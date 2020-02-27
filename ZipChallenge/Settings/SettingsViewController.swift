@@ -10,6 +10,10 @@ import UIKit
 import RxSwift
 import RxCocoa
 
+/*
+ View controller thay shows the app verison number and allows
+ changing between light and dark mode in the app.
+ */
 final class SettingsViewController: UIViewController {
     enum Constants {
         static let darkModeCellIdentifier = "SettingsDarkModeCell"

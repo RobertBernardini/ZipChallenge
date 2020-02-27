@@ -17,6 +17,9 @@ protocol StockTableViewCellDelegate: AnyObject {
     )
 }
 
+/*
+ Cell used to display the stock data.
+ */
 class StockTableViewCell: UITableViewCell {
     enum Constants {
         static let stockCellName = "StockTableViewCell"

@@ -10,6 +10,10 @@ import UIKit
 import RxSwift
 import RxCocoa
 
+/*
+ Base class of the Stock and Favorite Stock View Controllers.
+ Both have common functionality in relation to displaying and updating stock cells.
+ */
 class BaseStockViewController: UIViewController {
     @IBOutlet var tableView: UITableView!
 
@@ -27,27 +31,31 @@ class BaseStockViewController: UIViewController {
 
     func update(with updatedStocks: [StockModel]) {
         updatedStocks.forEach({ updatedStock in
-            if let index = stocks.indexes(of: updatedStock).first {
+            if let index = stocks.firstIndex(of: updatedStock) {
                 stocks[index].update(with: updatedStock)
             }
         })
     }
     
     func reloadCells(for updatedStocks: [StockModel]) {
-        // I originally had code to update each row but it was causing animation conflicts
-        // when updating the cell with profile data and whilst scrolling at the same time
-        // so the only way to avoid this was by reloading the whole table. Since I only reload
-        // when fetching new profile data it should not reload when it already contains data.
+        /*
+         I originally had code to update each row but it was causing animation conflicts
+         when updating the cell with profile data and whilst scrolling at the same time
+         so the only way to avoid this was by reloading the whole table. Since I only reload
+         when fetching new profile data it should not reload when it already contains data.
+         */
         tableView.reloadData()
     }
         
-    // Function to be called by delegate overriden in child classes
+    // Abstract function to be called by delegate and overriden in child classes.
     func updateAsFavorite(stock: StockModel) {}
 }
 
-// Have used traditional way of setting up tableview as it allows more control over updating just
-// one cell of the tableview rather than using Rx. If I bind the stocks behavior relay to the table
-// view every time I update it it will refresh the whole table when I may just want to update one cell.
+/*
+ I decided to use the traditional way of setting up a table view instead of using Rx signals so
+ that I have more control over refreshing only certain cells rather than the whole table, which
+ would have occurred if I had bound the "stocks" property to the Rx signal.
+ */
 extension BaseStockViewController: UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return stocks.count

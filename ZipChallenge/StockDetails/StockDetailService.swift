@@ -36,9 +36,8 @@ extension ZipStockDetailService: StockDetailService {
     func fetchPrice(for stock: StockModel) -> Observable<StockModel> {
         let symbols = [stock.symbol]
         let pricesEndpoint = Endpoint.stockPriceList(stockSymbols: symbols)
-        return apiRepository.fetch(type: StockPriceList.self, at: pricesEndpoint)
-            .map({ [weak self] priceList -> StockModel in
-                guard let priceModel = priceList.prices.first else { return stock }
+        return apiRepository.fetch(type: StockPriceList.StockPrice.self, at: pricesEndpoint)
+            .map({ [weak self] priceModel -> StockModel in
                 var updatedStock = stock
                 updatedStock.update(price: priceModel.price)
                 self?.cacheRepository.update(stocks: [updatedStock])
@@ -76,6 +75,6 @@ extension ZipStockDetailService: StockDetailService {
     }
     
     func save(stock: StockModel) {
-        dataRepository.save([stock])
+        dataRepository.saveOnSeparateThread([stock])
     }
 }

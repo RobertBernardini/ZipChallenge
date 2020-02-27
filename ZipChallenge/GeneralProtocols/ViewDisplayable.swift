@@ -8,6 +8,10 @@
 
 import Foundation
 
+/*
+ Protocol to be conformed to by UI Views and their subclasses to allow
+ easy setup of view displayable data.
+ */
 protocol ViewDisplayable {
     associatedtype DisplayData
     var displayData: DisplayData? { get set }

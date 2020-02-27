@@ -10,6 +10,14 @@ import UIKit
 import RxSwift
 import RxCocoa
 
+/*
+ View Controller that displays the details of the stock.
+ Rx is used to update data coming in from the view model and to send signals
+ to the view model to fetch data.
+ The price data is updated every 15 seconds.
+ The historical price data is fetched once the view loads only once.
+ An internet connection is needed to use collect the historical data.
+*/
 final class StockDetailViewController: UIViewController {
     @IBOutlet var detailView: StockDetailView!
     @IBOutlet var priceChartView: StockDetailPriceChartView!
@@ -28,6 +36,11 @@ final class StockDetailViewController: UIViewController {
         bindUserInterface()
         viewModel.inputs.startUpdates.accept(())
         viewModel.inputs.fetchPriceHistory.accept(())
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        if Connectivity.isConnectedToInternet == false { showErrorAlert(error: APIError.internet) }
     }
     
     override func viewWillDisappear(_ animated: Bool) {
@@ -62,13 +75,33 @@ final class StockDetailViewController: UIViewController {
             })
             .disposed(by: bag)
     }
-    
+}
+
+extension StockDetailViewController {
     private func historicalPrices(_ historicals: [StockDetailHistorical], from startDate: Date) -> [StockDetailHistorical]? {
         var newHistoricals = historicals
         newHistoricals.removeAll(where: { $0.stockDate < startDate })
         return newHistoricals
     }
+    
+    private func showPriceHistoryActionSheet(
+        with title: String?,
+        message: String?,
+        handler: @escaping ((PriceChartPeriod) -> Void)
+    ) {
+        let alert = UIAlertController(title: title, message: message, preferredStyle: .actionSheet)
+        PriceChartPeriod.allCases.forEach { option in
+            let action = UIAlertAction(title: option.text, style: .default) { _ in
+                handler(option)
+            }
+            alert.addAction(action)
+        }
+        let cancelAction = UIAlertAction(title: "Cancel", style: .cancel, handler: nil)
+        alert.addAction(cancelAction)
+        present(alert, animated: true, completion: nil)
+    }
 }
+
 
 extension StockDetailViewController: ViewModelable {}
 
@@ -76,10 +109,11 @@ extension StockDetailViewController: StockDetailPriceChartViewDelegate {
     func stockDetailPriceHistoryViewDidTapUpdateDuration(_ view: StockDetailPriceChartView) {
         showPriceHistoryActionSheet(
             with: PriceChartPeriod.title,
-            message: PriceChartPeriod.message) { [unowned self] duration in
-                guard let historicals = self.historicalPrices(self.historicalPrices, from: duration.startDate) else { return }
-                let priceChartData = PriceChartData(duration: duration, historicalPrices: historicals)
-                self.priceChartView.displayData = priceChartData
+            message: PriceChartPeriod.message
+        ) { [unowned self] duration in
+            guard let historicals = self.historicalPrices(self.historicalPrices, from: duration.startDate) else { return }
+            let priceChartData = PriceChartData(duration: duration, historicalPrices: historicals)
+            self.priceChartView.displayData = priceChartData
         }
     }
 }

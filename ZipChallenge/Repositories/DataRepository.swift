@@ -15,6 +15,7 @@ import RxCocoa
 protocol DataRepository {
     func fetchStocks() -> [Stock]
     func save(_ stocks: [StockPersistable])
+    func saveOnSeparateThread(_ stocks: [StockPersistable])
 }
 
 // Class that implements the Data Repository protocol.
@@ -53,6 +54,12 @@ class ZipDataRepository: DataRepository {
         } catch {
             DataError.fetch(error).log()
             return []
+        }
+    }
+    
+    func saveOnSeparateThread(_ stocks: [StockPersistable]) {
+        DispatchQueue.global(qos: .background).async {
+            self.save(stocks)
         }
     }
     

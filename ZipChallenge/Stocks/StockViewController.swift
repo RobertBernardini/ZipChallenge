@@ -10,6 +10,12 @@ import UIKit
 import RxSwift
 import RxCocoa
 
+/*
+ View Controller that displays the list of stocks to the user.
+ It is a sub-class of Base Stock View Controller.
+ Rx is used to update data coming in from the view model and to send signals
+ to the view model to fetch data.
+ */
 final class StockViewController: BaseStockViewController {
     typealias ViewModel = StockViewModel
     var viewModel: StockViewModel!
@@ -29,6 +35,7 @@ final class StockViewController: BaseStockViewController {
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         viewModel.inputs.fetchCachedStocks.accept(())
+        if Connectivity.isConnectedToInternet == false { showErrorAlert(error: APIError.internet) }
     }
 
     override func configureUserInterface() {
@@ -38,6 +45,10 @@ final class StockViewController: BaseStockViewController {
     
     func bindUserInterface() {
         refreshHandler.refresh
+            .do(onNext: { [unowned self] in
+                guard Connectivity.isConnectedToInternet == false else { return }
+                self.showErrorAlert(error: APIError.internet)
+            })
             .bind(to: viewModel.inputs.fetchStocks)
             .disposed(by: bag)
         
@@ -65,11 +76,11 @@ final class StockViewController: BaseStockViewController {
             .subscribe()
             .disposed(by: bag)
         
-        let fetchProfilesSubject = PublishSubject<[StockModel]>()
+        let fetchProfilesSubject = PublishRelay<[StockModel]>()
         tableView.rx.didEndDragging
             .map({ [unowned self] decelerating -> Void in
                 if decelerating == false {
-                    fetchProfilesSubject.onNext(self.stocksInView)
+                    fetchProfilesSubject.accept(self.stocksInView)
                 }
             })
             .asObservable()
@@ -116,12 +127,11 @@ final class StockViewController: BaseStockViewController {
                 self.stocks = $0
                 self.tableView.reloadData()
                 
-                // Fire signal to fetch stock profiles when the data is
-                // first loaded. A delay is needed so that the persistant
-                // data has time to load.
+                // Fire signal to fetch stock profiles when the data is first loaded.
+                // A delay is needed so that the persistant data has time to load.
                 let delay = DispatchTime.now() + 1
                 DispatchQueue.main.asyncAfter(deadline: delay) {
-                    fetchProfilesSubject.onNext(self.stocksInView)
+                    fetchProfilesSubject.accept(self.stocksInView)
                 }
             })
             .disposed(by: bag)

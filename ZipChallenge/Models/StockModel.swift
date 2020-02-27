@@ -98,7 +98,7 @@ extension StockModel: StockDisplayable {
     var stockPercentageChangeColor: UIColor {
         let symbol = stockPercentageChange.prefix(1)
         switch symbol {
-        case "+": return .green
+        case "+": return .systemGreen
         case "-": return .red
         default: return .clear
         }

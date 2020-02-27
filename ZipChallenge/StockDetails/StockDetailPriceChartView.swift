@@ -69,7 +69,7 @@ extension StockDetailPriceChartView {
         guard let startPrice = historicalPrices.first?.stockPrice,
             let endPrice = historicalPrices.last?.stockPrice else { return .purple }
         let isGain = endPrice > startPrice
-        return isGain ? .green : .red
+        return isGain ? .systemGreen : .red
     }
 }
 

@@ -64,8 +64,7 @@ extension ZipStockService: StockService {
                 // Save the data to Core Data as backup in case there is no connection to internet.
                 // As separate background thread is created to save the data so that this background
                 // thread is not blocked by an intensive task.
-                DispatchQueue.global(qos: .background).async { self?.dataRepository.save(stocks) }
-                
+                self?.dataRepository.saveOnSeparateThread(stocks)
                 // Order and save the stocks to cache.
                 stocks.sort(by: { $0.symbol < $1.symbol })
                 self?.cacheRepository.set(stocks: stocks)
@@ -86,16 +85,20 @@ extension ZipStockService: StockService {
     func fetchStockProfiles(for stocks: [StockModel]) -> Observable<[StockModel]> {
         let symbols = stocks.map({ $0.symbol })
         let profilesEndpoint = Endpoint.stockProfileList(stockSymbols: symbols)
-        return apiRepository.fetch(type: StockProfileList.self, at: profilesEndpoint)
-            .map({ [weak self] profilesList -> [StockModel] in
-                let profiles = profilesList.profiles
+        let response: Single<[StockProfileList.StockProfile]>
+        if symbols.count > 1 {
+            response = apiRepository.fetch(type: StockProfileList.self, at: profilesEndpoint).map({ $0.profiles })
+        } else {
+            response = apiRepository.fetch(type: StockProfileList.StockProfile.self, at: profilesEndpoint).map({ [$0] })
+        }
+        return response.map({ [weak self] profiles -> [StockModel] in
                 guard let stocks = self?.cacheRepository.cachedStocks else { return [] }
                 let updatedStocks: [StockModel] = profiles.compactMap({ profile in
                     guard var stock = stocks.first(where: { $0.symbol == profile.symbol }) else { return nil }
                     stock.update(with: profile)
                     return stock
                 })
-                DispatchQueue.global(qos: .background).async { self?.dataRepository.save(stocks) }
+                self?.dataRepository.saveOnSeparateThread(stocks)
                 self?.cacheRepository.update(stocks: updatedStocks)
                 return updatedStocks
             })
@@ -111,7 +114,7 @@ extension ZipStockService: StockService {
     }
     
     func update(stock: StockModel) {
-        dataRepository.save([stock])
+        dataRepository.saveOnSeparateThread([stock])
         cacheRepository.update(stocks: [stock])
     }
 }

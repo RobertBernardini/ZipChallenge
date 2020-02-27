@@ -11,6 +11,12 @@ import UIKit
 import RxSwift
 import RxCocoa
 
+/*
+ Coorinator used in the app to handle navigation using a Tab Bar Controller.
+ The repositories are instantiated in the coordinator and injected into the
+ services, which in turn are injected into the view models, and they into
+ the view controllers.
+*/
 protocol Coordinator {
     var tabBarController: UITabBarController { get }
     

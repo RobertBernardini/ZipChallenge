@@ -9,6 +9,7 @@
 import Foundation
 
 extension Date {
+    // Converts date to string to be used in API calls.
     func shortDatedString() -> String {
         let dateFormatter = DateFormatter()
         dateFormatter.dateFormat = "yyyy-MM-dd"

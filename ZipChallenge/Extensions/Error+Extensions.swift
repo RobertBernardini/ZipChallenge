@@ -9,6 +9,7 @@
 import Foundation
 
 extension Error {
+    // Convenince method to log errors.
     func log() {
         NSLog(self.localizedDescription)
     }

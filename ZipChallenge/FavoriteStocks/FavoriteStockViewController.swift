@@ -10,6 +10,16 @@ import UIKit
 import RxSwift
 import RxCocoa
 
+/*
+ View Controller that displays the list of favourite.
+ It is a sub-class of Base Stock View Controller.
+ Rx is used to update data coming in from the view model and to send signals
+ to the view model to fetch data.
+ It functions much like Stock View Controller but only for favourite stocks.
+ It also does not fetch the stock profile, that is left to the Stock View
+ Controller which is then stored in cache.
+ The price data is updated every 15 seconds.
+*/
 final class FavoriteStockViewController: BaseStockViewController {
     typealias ViewModel = FavoriteStockViewModel
     var viewModel: FavoriteStockViewModel!
@@ -69,7 +79,7 @@ final class FavoriteStockViewController: BaseStockViewController {
     }
 
     func remove(stock: StockModel) {
-        guard let index = stocks.indexes(of: stock).first else { return }
+        guard let index = stocks.firstIndex(of: stock) else { return }
         stocks.remove(at: index)
         let indexPath = IndexPath(row: index, section: 0)
         tableView.beginUpdates()

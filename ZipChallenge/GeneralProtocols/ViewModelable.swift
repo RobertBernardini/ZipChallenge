@@ -10,6 +10,10 @@
 import Foundation
 import UIKit
 
+/*
+ Protocol to be conformed to by view controllers to adhere to specific funcionality.
+ A convenience extenions also exists to easily instaniate view controllers.
+ */
 protocol ViewModelable {
     associatedtype ViewModel
     var viewModel: ViewModel! { get set }

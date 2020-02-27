@@ -33,7 +33,7 @@ class ZipCacheRepository {
 extension ZipCacheRepository: CacheRepository {
     func update(stocks: [StockModel]) {
         stocks.forEach { stock in
-            if let index = cachedStocks.indexes(of: stock).first {
+            if let index = cachedStocks.firstIndex(of: stock) {
                 cachedStocks[index] = stock
             }
         }

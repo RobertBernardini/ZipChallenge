@@ -63,12 +63,12 @@ extension ZipFavoriteStockService: FavoriteStockService {
     }
     
     func removeFromFavorite(stock: StockModel) -> Observable<StockModel> {
-        dataRepository.save([stock])
+        dataRepository.saveOnSeparateThread([stock])
         cacheRepository.update(stocks: [stock])
         return Observable.just(stock)
     }
     
     func save(stocks: [StockModel]) {
-        dataRepository.save(stocks)
+        dataRepository.saveOnSeparateThread(stocks)
     }
 }

@@ -11,6 +11,9 @@ import UIKit
 import RxSwift
 import RxCocoa
 
+/*
+ Class that instantiates a Refresh Control with Rx functionality.
+ */
 class RefreshHandler {
     let refresh = PublishSubject<Void>()
     let refreshControl = UIRefreshControl()

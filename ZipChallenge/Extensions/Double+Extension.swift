@@ -9,6 +9,7 @@
 import Foundation
 
 extension Double {
+    // Converts double to formatted string for stock currency data.
     func toDollarString() -> String {
         let formatter = NumberFormatter()
         formatter.numberStyle = .decimal
