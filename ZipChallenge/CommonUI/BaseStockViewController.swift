@@ -18,6 +18,7 @@ class BaseStockViewController: UIViewController {
     @IBOutlet var tableView: UITableView!
 
     var stocks: [StockModel] = []
+    var stocksInView: [StockModel] = []
     let bag = DisposeBag()
     
     func configureUserInterface() {

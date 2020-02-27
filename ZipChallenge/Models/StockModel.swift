@@ -108,7 +108,7 @@ extension StockModel: StockDisplayable {
         switch symbol {
         case "+": return .systemGreen
         case "-": return .red
-        default: return .clear
+        default: return .lightGray
         }
     }
     var stockSymbol: String { symbol }

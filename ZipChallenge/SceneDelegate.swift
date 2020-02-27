@@ -28,6 +28,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         self.window = window
         window.makeKeyAndVisible()
         
+        // Get the dark mode setting from the app when launching and apply it.
         let isDarkMode = UserDefaults.standard.bool(forKey: SettingsConstant.darkMode)
         UIApplication.set(darkMode: isDarkMode)
     }

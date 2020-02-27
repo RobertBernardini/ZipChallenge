@@ -25,7 +25,6 @@ final class StockViewController: BaseStockViewController {
     private lazy var refreshHandler: RefreshHandler = {
         RefreshHandler(view: tableView)
     }()
-    private var stocksInView: [StockModel] = []
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -46,6 +45,7 @@ final class StockViewController: BaseStockViewController {
     }
     
     func bindUserInterface() {
+        // Refresh handler
         refreshHandler.refresh
             .do(onNext: { [unowned self] in
                 guard Connectivity.isConnectedToInternet == false else { return }
@@ -54,6 +54,7 @@ final class StockViewController: BaseStockViewController {
             .bind(to: viewModel.inputs.fetchStocks)
             .disposed(by: bag)
         
+        // Selected stock to see detail
         tableView.rx.itemSelected
             .map({ [unowned self] in
                 return self.stocks[$0.row]
@@ -61,6 +62,8 @@ final class StockViewController: BaseStockViewController {
             .bind(to: viewModel.inputs.stockSelected)
             .disposed(by: bag)
         
+        // Bindings in order to detect when table stops scrolling and
+        // fetch profile data
         tableView.rx.willDisplayCell
             .map({ [unowned self] cellTuple -> Void in
                 let stock = self.stocks[cellTuple.indexPath.row]
@@ -102,8 +105,7 @@ final class StockViewController: BaseStockViewController {
              didEndDecelerating,
              didScrollToTop])
             .map({ stocks -> [[StockModel]] in
-                let stocksToUpdate = stocks.filter({ $0.hasProfileData == false })
-                return stocksToUpdate.toChunks(of: 3)
+                return stocks.toChunks(of: 3)
             })
             .asObservable()
             .subscribe(onNext: {
@@ -113,6 +115,7 @@ final class StockViewController: BaseStockViewController {
             })
             .disposed(by: bag)
         
+        // Fetch stocks after data initialised
         viewModel.outputs.dataInitialized
             .asDriver(onErrorJustReturn: ())
             .drive(onNext: { [weak self] _ in
@@ -121,6 +124,7 @@ final class StockViewController: BaseStockViewController {
             })
             .disposed(by: bag)
         
+        // Update table and set stocks
         viewModel.outputs.stocks
             .asDriver(onErrorDriveWith: .empty())
             .drive(onNext: { [weak self] in
@@ -138,6 +142,7 @@ final class StockViewController: BaseStockViewController {
             })
             .disposed(by: bag)
         
+        // Update stocks
         viewModel.outputs.updatedStocks
             .asDriver(onErrorDriveWith: .empty())
             .drive(onNext: { [weak self] in
@@ -146,6 +151,7 @@ final class StockViewController: BaseStockViewController {
             })
             .disposed(by: bag)
         
+        // Update favorite stock
         viewModel.outputs.favoriteStock
             .asDriver(onErrorDriveWith: .empty())
             .drive(onNext: { [weak self] in

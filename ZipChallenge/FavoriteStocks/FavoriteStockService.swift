@@ -14,6 +14,7 @@ protocol FavoriteStockService {
     var cachedFavoriteStock: [StockModel] { get }
     
     func fetchPrices(for stocks: [StockModel]) -> Observable<[StockModel]>
+    func fetchStockProfiles(for stocks: [StockModel]) -> Observable<[StockModel]>
     func removeFromFavorite(stock: StockModel) -> Observable<StockModel>
     func save(stocks: [StockModel])
 }
@@ -49,6 +50,41 @@ extension ZipFavoriteStockService: FavoriteStockService {
                     return stock
                 })
                 self?.cacheRepository.update(stocks: updatedStocks)
+                return updatedStocks
+            })
+            .asObservable()
+            .materialize()
+            .flatMap({ event -> Observable<[StockModel]> in
+                switch event {
+                case .next(let updatedStocks): return Observable.just(updatedStocks)
+                case .error: return .empty()
+                case .completed: return .empty()
+                }
+            })
+    }
+    
+    func fetchStockProfiles(for stocks: [StockModel]) -> Observable<[StockModel]> {
+        let symbols = stocks.map({ $0.symbol })
+        let profilesEndpoint = Endpoint.stockProfileList(stockSymbols: symbols)
+        let response: Single<[StockProfileList.StockProfile]>
+        if symbols.count > 1 {
+            response = apiRepository.fetch(type: StockProfileList.self, at: profilesEndpoint).map({ $0.profiles })
+        } else {
+            response = apiRepository.fetch(type: StockProfileList.StockProfile.self, at: profilesEndpoint).map({ [$0] })
+        }
+        return response.map({ [weak self] profiles -> [StockModel] in
+                guard let stocks = self?.cacheRepository.cachedStocks else { return [] }
+                let updatedStocks: [StockModel] = profiles.compactMap({ profile in
+                    guard var stock = stocks.first(where: { $0.symbol == profile.symbol }) else { return nil }
+                    stock.update(with: profile)
+                    return stock
+                })
+                self?.cacheRepository.update(stocks: updatedStocks)
+
+                // Persist the data in case there is no internet connection.
+                // A separate background thread is created so that this background
+                // thread is not blocked by an intensive task.
+                self?.dataRepository.saveOnSeparateThread(updatedStocks)
                 return updatedStocks
             })
             .asObservable()

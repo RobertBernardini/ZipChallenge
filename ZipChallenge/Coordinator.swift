@@ -76,10 +76,8 @@ class MainCoordinator {
             .map({ ($0, favoriteStockViewController.navigationController) })
         
         Driver.merge([showFromStockController, showFromFavoritesController])
-            .drive(onNext: {
-                self.showStockDetails(for: $0.0, on: $0.1)
-            })
-        .disposed(by: bag)
+            .drive(onNext: { self.showStockDetails(for: $0.0, on: $0.1) })
+            .disposed(by: bag)
     }
     
     func showStockDetails(

@@ -61,10 +61,6 @@ extension ZipStockService: StockService {
                         stocks[index].update(with: stockWithProfile)
                     }
                 })
-                // Save the data to Core Data as backup in case there is no connection to internet.
-                // As separate background thread is created to save the data so that this background
-                // thread is not blocked by an intensive task.
-                self?.dataRepository.saveOnSeparateThread(stocks)
                 // Order and save the stocks to cache.
                 stocks.sort(by: { $0.symbol < $1.symbol })
                 self?.cacheRepository.set(stocks: stocks)
@@ -98,8 +94,12 @@ extension ZipStockService: StockService {
                     stock.update(with: profile)
                     return stock
                 })
-                self?.dataRepository.saveOnSeparateThread(stocks)
                 self?.cacheRepository.update(stocks: updatedStocks)
+
+                // Persist the data in case there is no internet connection.
+                // A separate background thread is created so that this background
+                // thread is not blocked by an intensive task.
+                self?.dataRepository.saveOnSeparateThread(updatedStocks)
                 return updatedStocks
             })
             .asObservable()

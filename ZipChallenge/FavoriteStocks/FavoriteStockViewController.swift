@@ -47,6 +47,7 @@ final class FavoriteStockViewController: BaseStockViewController {
     }
     
     func bindUserInterface() {
+        // Selected stock to see detail
         tableView.rx.itemSelected
             .map({ [unowned self] in
                 return self.stocks[$0.row]
@@ -54,11 +55,70 @@ final class FavoriteStockViewController: BaseStockViewController {
             .bind(to: viewModel.inputs.stockSelected)
             .disposed(by: bag)
         
+        tableView.rx.willDisplayCell
+            .map({ [unowned self] cellTuple -> Void in
+                let stock = self.stocks[cellTuple.indexPath.row]
+                self.stocksInView.append(stock)
+            })
+            .subscribe()
+            .disposed(by: bag)
+        
+        tableView.rx.didEndDisplayingCell
+            .map({ [unowned self] cellTuple -> Void in
+                let stock = self.stocks[cellTuple.indexPath.row]
+                guard let index = self.stocksInView.firstIndex(of: stock) else { return }
+                self.stocksInView.remove(at: index)
+            })
+            .subscribe()
+            .disposed(by: bag)
+        
+        let fetchProfilesSubject = PublishRelay<[StockModel]>()
+        tableView.rx.didEndDragging
+            .map({ [unowned self] decelerating -> Void in
+                if decelerating == false {
+                    fetchProfilesSubject.accept(self.stocksInView)
+                }
+            })
+            .asObservable()
+            .subscribe()
+            .disposed(by: bag)
+
+        let didEndDecelerating = tableView.rx.didEndDecelerating
+            .map({ [unowned self] in self.stocksInView })
+            .asObservable()
+        
+        let didScrollToTop = tableView.rx.didScrollToTop
+            .map({ [unowned self] in self.stocksInView })
+            .asObservable()
+
+        Observable.merge(
+            [fetchProfilesSubject.asObservable(),
+             didEndDecelerating,
+             didScrollToTop])
+            .map({ stocks -> [[StockModel]] in
+                return stocks.toChunks(of: 3)
+            })
+            .asObservable()
+            .subscribe(onNext: {
+                $0.forEach({ [weak self] in
+                    self?.viewModel.inputs.fetchProfiles.accept($0)
+                })
+            })
+            .disposed(by: bag)
+        
         viewModel.outputs.favoriteStocks
             .asDriver(onErrorDriveWith: .empty())
             .drive(onNext: { [weak self] in
-                self?.stocks = $0
-                self?.tableView.reloadData()
+                guard let self = self else { return }
+                self.stocks = $0
+                self.tableView.reloadData()
+                
+                // Fire signal to fetch stock profiles when the data is first loaded.
+                // A delay is needed so that the persistant data has time to load.
+                let delay = DispatchTime.now() + 1
+                DispatchQueue.main.asyncAfter(deadline: delay) {
+                    fetchProfilesSubject.accept(self.stocksInView)
+                }
             })
             .disposed(by: bag)
         

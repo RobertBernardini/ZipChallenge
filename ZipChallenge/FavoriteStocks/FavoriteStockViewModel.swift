@@ -14,6 +14,7 @@ protocol FavoriteStockViewModelInputs {
     var startUpdates: PublishRelay<Void> { get }
     var stopUpdatesAndSave: PublishRelay<[StockModel]> { get }
     var fetchFavoriteStocks: PublishRelay<Void> { get }
+    var fetchProfiles: PublishRelay<[StockModel]> { get }
     var removeFromFavoriteStock: PublishRelay<StockModel> { get }
     var stockSelected: PublishRelay<StockModel> { get }
 }
@@ -38,6 +39,7 @@ class ZipFavoriteStockViewModel {
     let startUpdates = PublishRelay<Void>()
     let stopUpdatesAndSave = PublishRelay<[StockModel]>()
     let fetchFavoriteStocks = PublishRelay<Void>()
+    let fetchProfiles = PublishRelay<[StockModel]>()
     let removeFromFavoriteStock = PublishRelay<StockModel>()
     let stockSelected = PublishRelay<StockModel>()
     
@@ -79,11 +81,18 @@ class ZipFavoriteStockViewModel {
                 Observable.just(service.cachedFavoriteStock)
             })
         
-        self.updatedStocks = fetchPrices
+        let updatedProfiles = self.fetchProfiles
+            .flatMap({ stocks -> Observable<[StockModel]> in
+                print("\(stocks.map({ $0.symbol }).description)")
+                return service.fetchStockProfiles(for: stocks)
+            })
+        
+        let updatedPrices = fetchPrices
             .flatMap({ _ -> Observable<[StockModel]> in
                 let stocks = service.cachedFavoriteStock
                 return service.fetchPrices(for: stocks)
             })
+        self.updatedStocks = Observable.merge([updatedProfiles, updatedPrices])
         
         self.removedStock = self.removeFromFavoriteStock
             .flatMap({ stock -> Observable<StockModel> in
