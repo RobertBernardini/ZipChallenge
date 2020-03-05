@@ -20,23 +20,23 @@ protocol FavoriteStockViewModelInputs {
     var stopUpdates: PublishRelay<Void> { get }
     var fetchFavoriteStocks: PublishRelay<Void> { get }
     var fetchProfiles: PublishRelay<[StockModel]> { get }
-    var removeFromFavoriteStock: PublishRelay<StockModel> { get }
+    var removeFavoriteStock: PublishRelay<StockModel> { get }
     var stockSelected: PublishRelay<StockModel> { get }
 }
 
 protocol FavoriteStockViewModelOutputs {
     var favoriteStocks: Observable<[StockModel]> { get }
-    var updatedStocks: Observable<[StockModel]> { get }
-    var removedStock: Observable<StockModel> { get }
-    var showDetail: Driver<StockModel> { get }
+    var updatedStocks: Observable<Result<[StockModel], Error>> { get }
+    var removedFavoriteStock: Observable<StockModel> { get }
+    var showDetail: Observable<StockModel> { get }
 }
 
-protocol FavoriteStockViewModel {
+protocol FavoriteStockViewModelType {
     var inputs: FavoriteStockViewModelInputs { get }
     var outputs: FavoriteStockViewModelOutputs { get }
 }
 
-class ZipFavoriteStockViewModel {
+class FavoriteStockViewModel {
     var inputs: FavoriteStockViewModelInputs { self }
     var outputs: FavoriteStockViewModelOutputs { self }
     
@@ -45,19 +45,19 @@ class ZipFavoriteStockViewModel {
     let stopUpdates = PublishRelay<Void>()
     let fetchFavoriteStocks = PublishRelay<Void>()
     let fetchProfiles = PublishRelay<[StockModel]>()
-    let removeFromFavoriteStock = PublishRelay<StockModel>()
+    let removeFavoriteStock = PublishRelay<StockModel>()
     let stockSelected = PublishRelay<StockModel>()
     
     // Outputs
     let favoriteStocks: Observable<[StockModel]>
-    let updatedStocks: Observable<[StockModel]>
-    let removedStock: Observable<StockModel>
-    let showDetail: Driver<StockModel>
+    let updatedStocks: Observable<Result<[StockModel], Error>>
+    let removedFavoriteStock: Observable<StockModel>
+    let showDetail: Observable<StockModel>
     
-    private let service: FavoriteStockService
+    private let service: FavoriteStockServiceType
     private let bag = DisposeBag()
     
-    init(service: FavoriteStockService) {
+    init(service: FavoriteStockServiceType) {
         self.service = service
         
         let fetchPrices = PublishRelay<Void>()
@@ -85,27 +85,44 @@ class ZipFavoriteStockViewModel {
                 Observable.just(service.cachedFavoriteStock)
             })
         
-        let updatedProfiles = self.fetchProfiles
-            .flatMap({ stocks -> Observable<[StockModel]> in
+        let fetchStockProfiles = PublishRelay<[StockModel]>()
+        self.fetchProfiles
+            .map({ stocks -> [[StockModel]] in
+                // Only a maximum of three (3) profiles can be fetched at a time by the Fetch
+                // Profile API web service, therefore, the stocks must be split into an array
+                // containing arrays of three or less stocks.
+                return stocks.toChunks(of: 3)
+            })
+            .subscribe(onNext: {
+                $0.forEach({
+                    fetchStockProfiles.accept($0)
+                })
+            })
+            .disposed(by: bag)
+        
+        let updatedProfiles = fetchStockProfiles
+            .flatMap({ stocks -> Observable<Result<[StockModel], Error>> in
                 return service.fetchStockProfiles(for: stocks)
             })
         
         let updatedPrices = fetchPrices
-            .flatMap({ _ -> Observable<[StockModel]> in
+            .flatMap({ _ -> Observable<Result<[StockModel], Error>> in
                 let stocks = service.cachedFavoriteStock
                 return service.fetchPrices(for: stocks)
             })
+        
         self.updatedStocks = Observable.merge([updatedProfiles, updatedPrices])
         
-        self.removedStock = self.removeFromFavoriteStock
+        self.removedFavoriteStock = self.removeFavoriteStock
             .flatMap({ stock -> Observable<StockModel> in
-                return service.removeFromFavorite(stock: stock)
+                service.updateAsFavorite(stock: stock)
+                return Observable.just(stock)
             })
             
-        self.showDetail = stockSelected.asDriver(onErrorDriveWith: .empty())
+        self.showDetail = self.stockSelected.asObservable()
     }
 }
 
-extension ZipFavoriteStockViewModel: FavoriteStockViewModel {}
-extension ZipFavoriteStockViewModel: FavoriteStockViewModelInputs {}
-extension ZipFavoriteStockViewModel: FavoriteStockViewModelOutputs {}
+extension FavoriteStockViewModel: FavoriteStockViewModelType {}
+extension FavoriteStockViewModel: FavoriteStockViewModelInputs {}
+extension FavoriteStockViewModel: FavoriteStockViewModelOutputs {}

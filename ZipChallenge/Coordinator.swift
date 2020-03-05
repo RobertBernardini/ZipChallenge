@@ -26,16 +26,16 @@ protocol Coordinator {
 class MainCoordinator {
     var tabBarController: UITabBarController
     private var stocks: [StockModel] = []
-    private let dataRepository: DataRepository
-    private let cacheRepository: CacheRepository
-    private let apiRepository: APIRepository
+    private let dataRepository: DataRepositoryType
+    private let cacheRepository: CacheRepositoryType
+    private let apiRepository: APIRepositoryType
     private let bag = DisposeBag()
     
     init(
         tabBarController: UITabBarController,
-        dataRepository: DataRepository = ZipDataRepository(),
-        cacheRepository: CacheRepository = ZipCacheRepository(),
-        apiRepository: APIRepository = ZipAPIRepository()
+        dataRepository: DataRepositoryType = DataRepository(),
+        cacheRepository: CacheRepositoryType = CacheRepository(),
+        apiRepository: APIRepositoryType = APIRepository()
     ) {
         self.tabBarController = tabBarController
         self.dataRepository = dataRepository
@@ -44,25 +44,25 @@ class MainCoordinator {
     }
     
     func start() {
-        let stockService: StockService = ZipStockService(
+        let stockService: StockServiceType = StockService(
             dataRepository: dataRepository,
             cacheRepository: cacheRepository,
             apiRepository: apiRepository)
-        let stockViewModel: StockViewModel = ZipStockViewModel(service: stockService)
+        let stockViewModel: StockViewModelType = StockViewModel(service: stockService)
         let stockViewController = StockViewController.instantiate(with: stockViewModel)
         let stockImage = UIImage(named: "stock")
         stockViewController.tabBarItem = UITabBarItem(title: "Stocks", image: stockImage, tag: 0)
 
-        let favoriteStockService: FavoriteStockService = ZipFavoriteStockService(
+        let favoriteStockService: FavoriteStockServiceType = FavoriteStockService(
             dataRepository: dataRepository,
             cacheRepository: cacheRepository,
             apiRepository: apiRepository)
-        let favoriteStockViewModel = ZipFavoriteStockViewModel(service: favoriteStockService)
+        let favoriteStockViewModel = FavoriteStockViewModel(service: favoriteStockService)
         let favoriteStockViewController = FavoriteStockViewController.instantiate(with: favoriteStockViewModel)
         favoriteStockViewController.tabBarItem = UITabBarItem(tabBarSystemItem: .favorites, tag: 1)
 
-        let settingsService: SettingsService = ZipSettingsService()
-        let settingsViewModel = ZipSettingsViewModel(service: settingsService)
+        let settingsService: SettingsServiceType = SettingsService()
+        let settingsViewModel = SettingsViewModel(service: settingsService)
         let settingsViewController = SettingsViewController.instantiate(with: settingsViewModel)
         let settingsImage = UIImage(named: "settings")
         settingsViewController.tabBarItem = UITabBarItem(title: "Settings", image: settingsImage, tag: 2)
@@ -75,7 +75,8 @@ class MainCoordinator {
         let showFromFavoritesController = favoriteStockViewModel.outputs.showDetail
             .map({ ($0, favoriteStockViewController.navigationController) })
         
-        Driver.merge([showFromStockController, showFromFavoritesController])
+        Observable.merge([showFromStockController, showFromFavoritesController])
+            .asDriver(onErrorDriveWith: .empty())
             .drive(onNext: { self.showStockDetails(for: $0.0, on: $0.1) })
             .disposed(by: bag)
     }
@@ -84,11 +85,11 @@ class MainCoordinator {
         for stock: StockModel,
         on navigationController: UINavigationController?
     ) {
-        let stockDetailService: StockDetailService = ZipStockDetailService(
+        let stockDetailService: StockDetailServiceType = StockDetailService(
             dataRepository: dataRepository,
             cacheRepository: cacheRepository,
             apiRepository: apiRepository)
-        let stockDetailViewModel = ZipStockDetailViewModel(service: stockDetailService, stock: stock)
+        let stockDetailViewModel = StockDetailViewModel(service: stockDetailService, stock: stock)
         let stockDetailViewController = StockDetailViewController.instantiate(with: stockDetailViewModel)
         navigationController?.pushViewController(stockDetailViewController, animated: true)
     }

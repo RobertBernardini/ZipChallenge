@@ -23,16 +23,16 @@ protocol StockDetailViewModelInputs {
 
 protocol StockDetailViewModelOutputs {
     var stock: StockModel { get }
-    var updatedStock: Observable<StockModel> { get }
-    var historicalPrices: Observable<[StockDetailHistorical]> { get }
+    var updatedStock: Observable<Result<StockModel, Error>> { get }
+    var historicalPrices: Observable<Result<[StockDetailHistorical], Error>> { get }
 }
 
-protocol StockDetailViewModel {
+protocol StockDetailViewModelType {
     var inputs: StockDetailViewModelInputs { get }
     var outputs: StockDetailViewModelOutputs { get }
 }
 
-class ZipStockDetailViewModel {
+class StockDetailViewModel {
     var inputs: StockDetailViewModelInputs { self }
     var outputs: StockDetailViewModelOutputs { self }
     
@@ -43,13 +43,13 @@ class ZipStockDetailViewModel {
     
     // Outputs
     let stock: StockModel
-    let updatedStock: Observable<StockModel>
-    let historicalPrices: Observable<[StockDetailHistorical]>
+    let updatedStock: Observable<Result<StockModel, Error>>
+    let historicalPrices: Observable<Result<[StockDetailHistorical], Error>>
     
-    private let service: StockDetailService
+    private let service: StockDetailServiceType
     private let bag = DisposeBag()
     
-    init(service: StockDetailService, stock: StockModel) {
+    init(service: StockDetailServiceType, stock: StockModel) {
         self.service = service
         self.stock = stock
         
@@ -74,17 +74,17 @@ class ZipStockDetailViewModel {
             .disposed(by: bag)
         
         self.updatedStock = fetchPrice
-            .flatMap({ _ -> Observable<StockModel> in
+            .flatMap({ _ -> Observable<Result<StockModel, Error>> in
                 return service.fetchPrice(for: stock)
             })
         
         self.historicalPrices = self.fetchPriceHistory
-            .flatMap({ _ -> Observable<[StockDetailHistorical]> in
+            .flatMap({ _ -> Observable<Result<[StockDetailHistorical], Error>> in
                 return service.fetchPriceHistory(for: stock)
             })
     }
 }
 
-extension ZipStockDetailViewModel: StockDetailViewModel {}
-extension ZipStockDetailViewModel: StockDetailViewModelInputs {}
-extension ZipStockDetailViewModel: StockDetailViewModelOutputs {}
+extension StockDetailViewModel: StockDetailViewModelType {}
+extension StockDetailViewModel: StockDetailViewModelInputs {}
+extension StockDetailViewModel: StockDetailViewModelOutputs {}

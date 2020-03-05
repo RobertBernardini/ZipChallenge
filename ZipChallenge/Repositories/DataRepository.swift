@@ -18,13 +18,13 @@ import RxCocoa
  Saving to and deleting data from Core Data is performed on a Background Context so as not to block the Main UI Thread.
  This class also encapsulates obtaining and saving the Core Data contexts eliminating the need to call the App Delegate.
  */
-protocol DataRepository {
+protocol DataRepositoryType {
     func fetchStocks() -> [Stock]
     func save(_ stocks: [StockPersistable])
     func saveOnSeparateThread(_ stocks: [StockPersistable])
 }
 
-class ZipDataRepository: DataRepository {
+class DataRepository: DataRepositoryType {
     private lazy var persistentContainer: NSPersistentContainer = {
         let container = NSPersistentContainer(name: "ZipChallenge")
         container.loadPersistentStores(completionHandler: { (_, error) in

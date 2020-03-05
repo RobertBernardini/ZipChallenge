@@ -16,22 +16,18 @@ import Foundation
  being replaced with the new web data.
  
  */
-protocol CacheRepository {
+protocol CacheRepositoryType {
     var cachedStocks: [StockModel] { get }
-    var cachedFavoriteStocks: [StockModel] { get }
     
     func update(stocks: [StockModel])
     func set(stocks : [StockModel])
 }
 
-class ZipCacheRepository {
+class CacheRepository {
     var cachedStocks: [StockModel] = []
-    var cachedFavoriteStocks: [StockModel] {
-        cachedStocks.filter({ $0.isFavorite == true })
-    }    
 }
 
-extension ZipCacheRepository: CacheRepository {
+extension CacheRepository: CacheRepositoryType {
     func update(stocks: [StockModel]) {
         stocks.forEach { stock in
             if let index = cachedStocks.firstIndex(of: stock) {

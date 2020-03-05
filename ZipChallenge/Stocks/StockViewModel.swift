@@ -26,18 +26,18 @@ protocol StockViewModelInputs {
 
 protocol StockViewModelOutputs {
     var dataInitialized: Observable<Void> { get }
-    var stocks: Observable<[StockModel]> { get }
-    var updatedStocks: Observable<[StockModel]> { get }
-    var favoriteStock: Observable<StockModel> { get }
-    var showDetail: Driver<StockModel> { get }
+    var stocks: Observable<Result<[StockModel], Error>> { get }
+    var updatedStocks: Observable<Result<[StockModel], Error>> { get }
+    var updatedFavoriteStock: Observable<StockModel> { get }
+    var showDetail: Observable<StockModel> { get }
 }
 
-protocol StockViewModel {
+protocol StockViewModelType {
     var inputs: StockViewModelInputs { get }
     var outputs: StockViewModelOutputs { get }
 }
 
-class ZipStockViewModel {
+class StockViewModel {
     var inputs: StockViewModelInputs { self }
     var outputs: StockViewModelOutputs { self }
     
@@ -51,15 +51,15 @@ class ZipStockViewModel {
     
     // Outputs
     let dataInitialized: Observable<Void>
-    let stocks: Observable<[StockModel]>
-    let updatedStocks: Observable<[StockModel]>
-    let favoriteStock: Observable<StockModel>
-    let showDetail: Driver<StockModel>
+    let stocks: Observable<Result<[StockModel], Error>>
+    let updatedStocks: Observable<Result<[StockModel], Error>>
+    let updatedFavoriteStock: Observable<StockModel>
+    let showDetail: Observable<StockModel>
     
-    private let service: StockService
+    private let service: StockServiceType
     private let bag = DisposeBag()
     
-    init(service: StockService) {
+    init(service: StockServiceType) {
         self.service = service
         self.dataInitialized = self.initializeData
             .flatMap({
@@ -67,33 +67,48 @@ class ZipStockViewModel {
             })
         
         let newStocks = self.fetchStocks
-            .flatMap({ _ -> Observable<[StockModel]> in
+            .flatMap({ _ -> Observable<Result<[StockModel], Error>> in
                 service.fetchStocks()
             })
         
         let cachedStocks = self.fetchCachedStocks
-            .flatMap({ _ -> Observable<[StockModel]> in
-                Observable.just(service.cachedStock)
+            .flatMap({ _ -> Observable<Result<[StockModel], Error>> in
+                Observable.just(.success(service.cachedStock))
             })
 
         self.stocks = Observable
             .merge([cachedStocks, newStocks])
         
-        self.updatedStocks = self.fetchProfiles
-            .flatMap({ stocks -> Observable<[StockModel]> in
+        let fetchStockProfiles = PublishRelay<[StockModel]>()
+        self.fetchProfiles
+            .map({ stocks -> [[StockModel]] in
+                // Only a maximum of three (3) profiles can be fetched at a time by the Fetch
+                // Profile API web service, therefore, the stocks must be split into an array
+                // containing arrays of three or less stocks.
+                return stocks.toChunks(of: 3)
+            })
+            .subscribe(onNext: {
+                $0.forEach({
+                    fetchStockProfiles.accept($0)
+                })
+            })
+            .disposed(by: bag)
+        
+        self.updatedStocks = fetchStockProfiles
+            .flatMap({ stocks -> Observable<Result<[StockModel], Error>> in
                 return service.fetchStockProfiles(for: stocks)
             })
         
-        self.favoriteStock = self.setAsFavoriteStock
+        self.updatedFavoriteStock = self.setAsFavoriteStock
             .flatMap({ stock -> Observable<StockModel> in
-                service.update(stock: stock)
+                service.updateAsFavorite(stock: stock)
                 return Observable.just(stock)
             })
             
-        self.showDetail = stockSelected.asDriver(onErrorDriveWith: .empty())
+        self.showDetail = self.stockSelected.asObservable()
     }
 }
 
-extension ZipStockViewModel: StockViewModel {}
-extension ZipStockViewModel: StockViewModelInputs {}
-extension ZipStockViewModel: StockViewModelOutputs {}
+extension StockViewModel: StockViewModelType {}
+extension StockViewModel: StockViewModelInputs {}
+extension StockViewModel: StockViewModelOutputs {}

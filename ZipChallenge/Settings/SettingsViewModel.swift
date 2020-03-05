@@ -24,12 +24,12 @@ protocol SettingsViewModelOutputs {
     var isDarkMode: Bool { get }
 }
 
-protocol SettingsViewModel {
+protocol SettingsViewModelType {
     var inputs: SettingsViewModelInputs { get }
     var outputs: SettingsViewModelOutputs { get }
 }
 
-class ZipSettingsViewModel {
+class SettingsViewModel {
     var inputs: SettingsViewModelInputs { self }
     var outputs: SettingsViewModelOutputs { self }
     
@@ -40,10 +40,10 @@ class ZipSettingsViewModel {
     var version: String { service.version }
     var isDarkMode: Bool { service.isDarkMode }
     
-    private let service: SettingsService
+    private let service: SettingsServiceType
     private let bag = DisposeBag()
 
-    init(service: SettingsService) {
+    init(service: SettingsServiceType) {
         self.service = service
         setDarkMode
             .subscribe(onNext: { service.set(darkMode: $0) })
@@ -51,6 +51,6 @@ class ZipSettingsViewModel {
     }
 }
 
-extension ZipSettingsViewModel: SettingsViewModel {}
-extension ZipSettingsViewModel: SettingsViewModelInputs {}
-extension ZipSettingsViewModel: SettingsViewModelOutputs {}
+extension SettingsViewModel: SettingsViewModelType {}
+extension SettingsViewModel: SettingsViewModelInputs {}
+extension SettingsViewModel: SettingsViewModelOutputs {}

@@ -69,11 +69,11 @@ enum Endpoint {
 /*
  Repository thatfecthes and decodes the API data from JSON into the models used throughout the project.
  */
-protocol APIRepository {
+protocol APIRepositoryType {
     func fetch<T: Decodable>(type: T.Type, at endpoint: Endpoint) -> Single<T>
 }
 
-class ZipAPIRepository: APIRepository {
+class APIRepository: APIRepositoryType {
     func fetch<T>(type: T.Type, at endpoint: Endpoint) -> Single<T> where T : Decodable {
         guard let request = endpoint.request else { return Single.error(APIError.invalidURL) }
         let manager = SessionManager.default

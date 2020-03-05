@@ -22,8 +22,8 @@ final class StockDetailViewController: UIViewController {
     @IBOutlet var detailView: StockDetailView!
     @IBOutlet var priceChartView: StockDetailPriceChartView!
     
-    typealias ViewModel = StockDetailViewModel
-    var viewModel: StockDetailViewModel!
+    typealias ViewModel = StockDetailViewModelType
+    var viewModel: StockDetailViewModelType!
     
     private var stock: StockModel?
     private var historicalPrices: [StockDetailHistorical] = []
@@ -34,13 +34,12 @@ final class StockDetailViewController: UIViewController {
         stock = viewModel.outputs.stock
         configureUserInterface()
         bindUserInterface()
-        viewModel.inputs.startUpdates.accept(())
-        viewModel.inputs.fetchPriceHistory.accept(())
     }
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        if Connectivity.isConnectedToInternet == false { showErrorAlert(error: APIError.internet) }
+        viewModel.inputs.startUpdates.accept(())
+        viewModel.inputs.fetchPriceHistory.accept(())
     }
     
     override func viewWillDisappear(_ animated: Bool) {
@@ -58,19 +57,33 @@ final class StockDetailViewController: UIViewController {
         viewModel.outputs.updatedStock
             .asDriver(onErrorDriveWith: .empty())
             .drive(onNext: { [weak self] in
-                self?.stock = $0
-                self?.detailView.displayData = $0
+                switch $0 {
+                case .success(let stock):
+                    self?.stock = stock
+                    self?.detailView.displayData = stock
+                case .failure: break
+                }
             })
             .disposed(by: bag)
         
         viewModel.outputs.historicalPrices
             .asDriver(onErrorDriveWith: .empty())
             .drive(onNext: { [weak self] in
-                self?.historicalPrices = $0
-                let duration = PriceChartPeriod.threeMonths
-                guard let historicals = self?.historicalPrices($0, from: duration.startDate) else { return }
-                let priceChartData = PriceChartData(duration: duration, historicalPrices: historicals)
-                self?.priceChartView.displayData = priceChartData
+                switch $0 {
+                case .success(let historicalPrices):
+                    self?.historicalPrices = historicalPrices
+                    let duration = PriceChartPeriod.threeMonths
+                    guard let historicals = self?.historicalPrices(historicalPrices, from: duration.startDate) else {
+                        return
+                    }
+                    let priceChartData = PriceChartData(duration: duration, historicalPrices: historicals)
+                    self?.priceChartView.displayData = priceChartData
+                case .failure(let error):
+//                    self.viewModel.inputs.fetchCachedStocks.accept(())
+                    if let error = error as? URLError, error.code == .notConnectedToInternet {
+                        self?.showErrorAlert(error: APIError.internet)
+                    }
+                }
             })
             .disposed(by: bag)
     }
@@ -110,7 +123,9 @@ extension StockDetailViewController: StockDetailPriceChartViewDelegate {
             with: PriceChartPeriod.title,
             message: PriceChartPeriod.message
         ) { [unowned self] duration in
-            guard let historicals = self.historicalPrices(self.historicalPrices, from: duration.startDate) else { return }
+            guard let historicals = self.historicalPrices(self.historicalPrices, from: duration.startDate) else {
+                return
+            }
             let priceChartData = PriceChartData(duration: duration, historicalPrices: historicals)
             self.priceChartView.displayData = priceChartData
         }

@@ -15,17 +15,20 @@ import RxCocoa
  It fetches the price and updates the stock.
  It fecthes the price history returns it. This data is not persisted.
 */
-protocol StockDetailService {
-    func fetchPrice(for stock: StockModel) -> Observable<StockModel>
-    func fetchPriceHistory(for stock: StockModel) -> Observable<[StockDetailHistorical]>
+protocol StockDetailServiceType {
+    func fetchPrice(for stock: StockModel) -> Observable<Result<StockModel, Error>>
+    func fetchPriceHistory(for stock: StockModel) -> Observable<Result<[StockDetailHistorical], Error>>
 }
 
-class ZipStockDetailService {
-    private let dataRepository: DataRepository
-    private let cacheRepository: CacheRepository
-    private let apiRepository: APIRepository
+class StockDetailService {
+    private let dataRepository: DataRepositoryType
+    private let cacheRepository: CacheRepositoryType
+    private let apiRepository: APIRepositoryType
     
-    init(dataRepository: DataRepository, cacheRepository: CacheRepository, apiRepository: APIRepository
+    init(
+        dataRepository: DataRepositoryType,
+        cacheRepository: CacheRepositoryType,
+        apiRepository: APIRepositoryType
     ) {
         self.dataRepository = dataRepository
         self.cacheRepository = cacheRepository
@@ -33,8 +36,8 @@ class ZipStockDetailService {
     }
 }
 
-extension ZipStockDetailService: StockDetailService {
-    func fetchPrice(for stock: StockModel) -> Observable<StockModel> {
+extension StockDetailService: StockDetailServiceType {
+    func fetchPrice(for stock: StockModel) -> Observable<Result<StockModel, Error>> {
         let symbols = [stock.symbol]
         let pricesEndpoint = Endpoint.stockPriceList(stockSymbols: symbols)
         return apiRepository.fetch(type: StockPriceList.StockPrice.self, at: pricesEndpoint)
@@ -47,16 +50,18 @@ extension ZipStockDetailService: StockDetailService {
             })
             .asObservable()
             .materialize()
-            .flatMap({ event -> Observable<StockModel> in
+            .flatMap({ event -> Observable<Result<StockModel, Error>> in
                 switch event {
-                case .next(let updatedStocks): return Observable.just(updatedStocks)
-                case .error: return .empty()
+                case .next(let updatedStock): return Observable.just(.success(updatedStock))
+                case .error(let error):
+                    error.log()
+                    return Observable.just(.failure(error))
                 case .completed: return .empty()
                 }
             })
     }
     
-    func fetchPriceHistory(for stock: StockModel) -> Observable<[StockDetailHistorical]> {
+    func fetchPriceHistory(for stock: StockModel) -> Observable<Result<[StockDetailHistorical], Error>> {
         let today = Date()
         let threeYearsAgo = Calendar.current.date(byAdding: .year, value: -3, to: today) ?? Date()
         let historicalEndpoint = Endpoint.stockHistory(
@@ -67,10 +72,10 @@ extension ZipStockDetailService: StockDetailService {
             .map({ $0.historicalMoments })
             .asObservable()
             .materialize()
-            .flatMap({ event -> Observable<[StockDetailHistorical]> in
+            .flatMap({ event -> Observable<Result<[StockDetailHistorical], Error>> in
                 switch event {
-                case .next(let updatedStocks): return Observable.just(updatedStocks)
-                case .error: return .empty()
+                case .next(let historicals): return Observable.just(.success(historicals))
+                case .error(let error): return Observable.just(.failure(error))
                 case .completed: return .empty()
                 }
             })

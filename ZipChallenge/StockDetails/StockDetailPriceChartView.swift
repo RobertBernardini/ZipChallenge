@@ -49,7 +49,10 @@ class StockDetailPriceChartView: UIView {
 }
 
 extension StockDetailPriceChartView {
-    private func configureChart(with duration: PriceChartPeriod, historicalPrices: [StockDetailHistorical]) {
+    private func configureChart(
+        with duration: PriceChartPeriod,
+        historicalPrices: [StockDetailHistorical]
+    ) {
         let dataEntries = historicalPrices.map({ detailHistorical -> ChartDataEntry in
             let timeInterval = detailHistorical.stockDate.timeIntervalSince1970
             let xValue = Double(timeInterval)

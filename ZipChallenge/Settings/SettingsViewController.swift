@@ -20,8 +20,8 @@ final class SettingsViewController: UIViewController {
         static let versionCellIdentifier = "SettingsVersionCell"
     }
     
-    typealias ViewModel = SettingsViewModel
-    var viewModel: SettingsViewModel!
+    typealias ViewModel = SettingsViewModelType
+    var viewModel: SettingsViewModelType!
     
     @IBOutlet var tableView: UITableView!
         

@@ -19,8 +19,8 @@ import RxCocoa
  The price data is updated every 15 seconds.
 */
 final class FavoriteStockViewController: BaseStockViewController {
-    typealias ViewModel = FavoriteStockViewModel
-    var viewModel: FavoriteStockViewModel!
+    typealias ViewModel = FavoriteStockViewModelType
+    var viewModel: FavoriteStockViewModelType!
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -73,11 +73,11 @@ final class FavoriteStockViewController: BaseStockViewController {
             .subscribe()
             .disposed(by: bag)
         
-        let fetchProfilesSubject = PublishRelay<[StockModel]>()
+        let fetchProfiles = PublishRelay<[StockModel]>()
         tableView.rx.didEndDragging
             .map({ [unowned self] decelerating -> Void in
                 if decelerating == false {
-                    fetchProfilesSubject.accept(self.stocksInView)
+                    fetchProfiles.accept(self.stocksInView)
                 }
             })
             .asObservable()
@@ -93,18 +93,10 @@ final class FavoriteStockViewController: BaseStockViewController {
             .asObservable()
 
         Observable.merge(
-            [fetchProfilesSubject.asObservable(),
+            [fetchProfiles.asObservable(),
              didEndDecelerating,
              didScrollToTop])
-            .map({ stocks -> [[StockModel]] in
-                return stocks.toChunks(of: 3)
-            })
-            .asObservable()
-            .subscribe(onNext: {
-                $0.forEach({ [weak self] in
-                    self?.viewModel.inputs.fetchProfiles.accept($0)
-                })
-            })
+            .bind(to: viewModel.inputs.fetchProfiles)
             .disposed(by: bag)
         
         // Update table and set favorite stocks
@@ -119,7 +111,7 @@ final class FavoriteStockViewController: BaseStockViewController {
                 // A delay is needed so that the persistant data has time to load.
                 let delay = DispatchTime.now() + 1
                 DispatchQueue.main.asyncAfter(deadline: delay) {
-                    fetchProfilesSubject.accept(self.stocksInView)
+                    fetchProfiles.accept(self.stocksInView)
                 }
             })
             .disposed(by: bag)
@@ -128,13 +120,18 @@ final class FavoriteStockViewController: BaseStockViewController {
         viewModel.outputs.updatedStocks
             .asDriver(onErrorDriveWith: .empty())
             .drive(onNext: { [weak self] in
-                self?.update(with: $0)
-                self?.reloadCells(for: $0)
+                switch $0 {
+                case .success(let stocks):
+                    self?.update(with: stocks)
+                    self?.reloadCells(for: stocks)
+                case .failure: break
+                }
+                
             })
             .disposed(by: bag)
 
         // Remove stock
-        viewModel.outputs.removedStock
+        viewModel.outputs.removedFavoriteStock
             .asDriver(onErrorDriveWith: .empty())
             .drive(onNext: { [weak self] in
                 self?.remove(stock: $0)
@@ -152,7 +149,7 @@ final class FavoriteStockViewController: BaseStockViewController {
     }
     
     override func updateAsFavorite(stock: StockModel) {
-        viewModel.inputs.removeFromFavoriteStock.accept(stock)
+        viewModel.inputs.removeFavoriteStock.accept(stock)
     }
 }
 

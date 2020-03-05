@@ -19,8 +19,8 @@ import RxCocoa
  scrolling.
  */
 final class StockViewController: BaseStockViewController {
-    typealias ViewModel = StockViewModel
-    var viewModel: StockViewModel!
+    typealias ViewModel = StockViewModelType
+    var viewModel: StockViewModelType!
     
     private lazy var refreshHandler: RefreshHandler = {
         RefreshHandler(view: tableView)
@@ -36,7 +36,6 @@ final class StockViewController: BaseStockViewController {
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         viewModel.inputs.fetchCachedStocks.accept(())
-        if Connectivity.isConnectedToInternet == false { showErrorAlert(error: APIError.internet) }
     }
 
     override func configureUserInterface() {
@@ -47,10 +46,6 @@ final class StockViewController: BaseStockViewController {
     func bindUserInterface() {
         // Refresh handler
         refreshHandler.refresh
-            .do(onNext: { [unowned self] in
-                guard Connectivity.isConnectedToInternet == false else { return }
-                self.showErrorAlert(error: APIError.internet)
-            })
             .bind(to: viewModel.inputs.fetchStocks)
             .disposed(by: bag)
         
@@ -81,11 +76,11 @@ final class StockViewController: BaseStockViewController {
             .subscribe()
             .disposed(by: bag)
         
-        let fetchProfilesSubject = PublishRelay<[StockModel]>()
+        let fetchProfiles = PublishRelay<[StockModel]>()
         tableView.rx.didEndDragging
             .map({ [unowned self] decelerating -> Void in
                 if decelerating == false {
-                    fetchProfilesSubject.accept(self.stocksInView)
+                    fetchProfiles.accept(self.stocksInView)
                 }
             })
             .asObservable()
@@ -101,18 +96,10 @@ final class StockViewController: BaseStockViewController {
             .asObservable()
 
         Observable.merge(
-            [fetchProfilesSubject.asObservable(),
+            [fetchProfiles.asObservable(),
              didEndDecelerating,
              didScrollToTop])
-            .map({ stocks -> [[StockModel]] in
-                return stocks.toChunks(of: 3)
-            })
-            .asObservable()
-            .subscribe(onNext: {
-                $0.forEach({ [weak self] in
-                    self?.viewModel.inputs.fetchProfiles.accept($0)
-                })
-            })
+            .bind(to: viewModel.inputs.fetchProfiles)
             .disposed(by: bag)
         
         // Fetch stocks after data initialised
@@ -130,14 +117,21 @@ final class StockViewController: BaseStockViewController {
             .drive(onNext: { [weak self] in
                 guard let self = self else { return }
                 self.refreshHandler.end()
-                self.stocks = $0
-                self.tableView.reloadData()
-                
-                // Fire signal to fetch stock profiles when the data is first loaded.
-                // A delay is needed so that the persistant data has time to load.
-                let delay = DispatchTime.now() + 1
-                DispatchQueue.main.asyncAfter(deadline: delay) {
-                    fetchProfilesSubject.accept(self.stocksInView)
+                switch $0 {
+                case .success(let stock):
+                    self.stocks = stock
+                    self.tableView.reloadData()
+                    // Fire signal to fetch stock profiles when the data is first loaded.
+                    // A delay is needed so that the persistant data has time to load.
+                    let delay = DispatchTime.now() + 1
+                    DispatchQueue.main.asyncAfter(deadline: delay) {
+                        fetchProfiles.accept(self.stocksInView)
+                    }
+                case .failure(let error):
+                    self.viewModel.inputs.fetchCachedStocks.accept(())
+                    if let error = error as? URLError, error.code == .notConnectedToInternet {
+                        self.showErrorAlert(error: APIError.internet)
+                    }
                 }
             })
             .disposed(by: bag)
@@ -146,13 +140,17 @@ final class StockViewController: BaseStockViewController {
         viewModel.outputs.updatedStocks
             .asDriver(onErrorDriveWith: .empty())
             .drive(onNext: { [weak self] in
-                self?.update(with: $0)
-                self?.reloadCells(for: $0)
+                switch $0 {
+                case .success(let stocks):
+                    self?.update(with: stocks)
+                    self?.reloadCells(for: stocks)
+                case .failure: break
+                }
             })
             .disposed(by: bag)
         
         // Update favorite stock
-        viewModel.outputs.favoriteStock
+        viewModel.outputs.updatedFavoriteStock
             .asDriver(onErrorDriveWith: .empty())
             .drive(onNext: { [weak self] in
                 self?.update(with: [$0])

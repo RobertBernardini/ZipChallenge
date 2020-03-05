@@ -11,7 +11,6 @@
 		B0663707A366C3C96BBD0CF1 /* Pods_ZipChallenge.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5587D11F3F52E4063B7280F0 /* Pods_ZipChallenge.framework */; };
 		E106A85E2406B09F005F2F32 /* DateFormatter+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = E106A85D2406B09F005F2F32 /* DateFormatter+Extension.swift */; };
 		E106A86224075485005F2F32 /* Array+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = E106A86124075485005F2F32 /* Array+Extensions.swift */; };
-		E106A86424079B23005F2F32 /* Connectivity+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = E106A86324079B23005F2F32 /* Connectivity+Extensions.swift */; };
 		E167A5752402218E001F0DDB /* Stock+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = E167A5742402218E001F0DDB /* Stock+Extensions.swift */; };
 		E167A57724022F78001F0DDB /* StockModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = E167A57624022F78001F0DDB /* StockModel.swift */; };
 		E167A5792402B4BF001F0DDB /* Error+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = E167A5782402B4BF001F0DDB /* Error+Extensions.swift */; };
@@ -60,6 +59,8 @@
 		E1FACB1423FFBFEB00D46DB3 /* StockDetailService.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1FACB1323FFBFEB00D46DB3 /* StockDetailService.swift */; };
 		E1FACB1623FFC00000D46DB3 /* FavoriteStockService.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1FACB1523FFC00000D46DB3 /* FavoriteStockService.swift */; };
 		E1FACB1823FFC01500D46DB3 /* SettingsService.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1FACB1723FFC01500D46DB3 /* SettingsService.swift */; };
+		E1FC1BF1240F3EF000B30102 /* Result.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1FC1BF0240F3EF000B30102 /* Result.swift */; };
+		E1FC1BF52411187200B30102 /* BaseStockService.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1FC1BF42411187200B30102 /* BaseStockService.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -79,7 +80,6 @@
 		CE7451CD653ACFCB6B85DABC /* Pods-ZipChallenge.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ZipChallenge.debug.xcconfig"; path = "Target Support Files/Pods-ZipChallenge/Pods-ZipChallenge.debug.xcconfig"; sourceTree = "<group>"; };
 		E106A85D2406B09F005F2F32 /* DateFormatter+Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DateFormatter+Extension.swift"; sourceTree = "<group>"; };
 		E106A86124075485005F2F32 /* Array+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Array+Extensions.swift"; sourceTree = "<group>"; };
-		E106A86324079B23005F2F32 /* Connectivity+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Connectivity+Extensions.swift"; sourceTree = "<group>"; };
 		E167A5742402218E001F0DDB /* Stock+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Stock+Extensions.swift"; sourceTree = "<group>"; };
 		E167A57624022F78001F0DDB /* StockModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StockModel.swift; sourceTree = "<group>"; };
 		E167A5782402B4BF001F0DDB /* Error+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Error+Extensions.swift"; sourceTree = "<group>"; };
@@ -132,6 +132,8 @@
 		E1FACB1323FFBFEB00D46DB3 /* StockDetailService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StockDetailService.swift; sourceTree = "<group>"; };
 		E1FACB1523FFC00000D46DB3 /* FavoriteStockService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FavoriteStockService.swift; sourceTree = "<group>"; };
 		E1FACB1723FFC01500D46DB3 /* SettingsService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsService.swift; sourceTree = "<group>"; };
+		E1FC1BF0240F3EF000B30102 /* Result.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Result.swift; sourceTree = "<group>"; };
+		E1FC1BF42411187200B30102 /* BaseStockService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BaseStockService.swift; sourceTree = "<group>"; };
 		E215CCBCF0CB8E33D0CF0AC2 /* Pods-ZipChallenge.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ZipChallenge.release.xcconfig"; path = "Target Support Files/Pods-ZipChallenge/Pods-ZipChallenge.release.xcconfig"; sourceTree = "<group>"; };
 		FD0086860A18602CFB6138DC /* Pods-ZipChallengeTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ZipChallengeTests.release.xcconfig"; path = "Target Support Files/Pods-ZipChallengeTests/Pods-ZipChallengeTests.release.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -180,9 +182,10 @@
 			isa = PBXGroup;
 			children = (
 				E1FACAF123FFB25E00D46DB3 /* Main.storyboard */,
-				E16A6C6A24069BE00052A43E /* BaseStockViewController.swift */,
 				E167A58C2402C5B8001F0DDB /* StockTableViewCell.swift */,
 				E1E7DC472404941700E95C9A /* StockTableViewCell.xib */,
+				E16A6C6A24069BE00052A43E /* BaseStockViewController.swift */,
+				E1FC1BF42411187200B30102 /* BaseStockService.swift */,
 			);
 			path = CommonUI;
 			sourceTree = "<group>";
@@ -279,6 +282,7 @@
 				E1FACAEB23FFB25E00D46DB3 /* StockHistory.swift */,
 				E1FACAEC23FFB25E00D46DB3 /* StockPriceList.swift */,
 				E1E7DC4D2404DB3C00E95C9A /* PriceChartData.swift */,
+				E1FC1BF0240F3EF000B30102 /* Result.swift */,
 				E167A57C2402BDAB001F0DDB /* Errors.swift */,
 			);
 			path = Models;
@@ -294,7 +298,6 @@
 				E1E7DC4F240524AD00E95C9A /* Double+Extension.swift */,
 				E1E7DC51240529B500E95C9A /* UIViewController+Extensions.swift */,
 				E106A86124075485005F2F32 /* Array+Extensions.swift */,
-				E106A86324079B23005F2F32 /* Connectivity+Extensions.swift */,
 			);
 			path = Extensions;
 			sourceTree = "<group>";
@@ -519,7 +522,6 @@
 				E16CF5E9240398FC00FE5A4D /* ViewDisplayable.swift in Sources */,
 				E1FACB1823FFC01500D46DB3 /* SettingsService.swift in Sources */,
 				E167A57B2402B958001F0DDB /* Coordinator.swift in Sources */,
-				E106A86424079B23005F2F32 /* Connectivity+Extensions.swift in Sources */,
 				E167A57F2402C15A001F0DDB /* StockViewModel.swift in Sources */,
 				E1FACAFC23FFB25F00D46DB3 /* StockProfileList.swift in Sources */,
 				E167A5892402C1DA001F0DDB /* StockDetailViewController.swift in Sources */,
@@ -544,10 +546,12 @@
 				E1E7DC46240483E000E95C9A /* RefreshHandler.swift in Sources */,
 				E1E7DC4A2404C90700E95C9A /* StockDetailPriceChartView.swift in Sources */,
 				E167A57D2402BDAB001F0DDB /* Errors.swift in Sources */,
+				E1FC1BF52411187200B30102 /* BaseStockService.swift in Sources */,
 				E1E7DC52240529B500E95C9A /* UIViewController+Extensions.swift in Sources */,
 				E167A58B2402C1F3001F0DDB /* SettingsViewController.swift in Sources */,
 				E167A5792402B4BF001F0DDB /* Error+Extensions.swift in Sources */,
 				E1FACABE23FFB20A00D46DB3 /* SceneDelegate.swift in Sources */,
+				E1FC1BF1240F3EF000B30102 /* Result.swift in Sources */,
 				E1FACAC623FFB20A00D46DB3 /* ZipChallenge.xcdatamodeld in Sources */,
 				E167A5812402C16C001F0DDB /* FavoriteStockViewModel.swift in Sources */,
 				E1FACB0A23FFBC1C00D46DB3 /* DataRepository.swift in Sources */,
