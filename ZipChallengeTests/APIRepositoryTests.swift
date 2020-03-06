@@ -11,11 +11,11 @@ import RxSwift
 @testable import ZipChallenge
 
 class APIRepositoryTests: XCTestCase {
-    var apiRepository: APIRepository!
+    var apiRepository: APIRepositoryType!
     var bag: DisposeBag!
     
     override func setUp() {
-        apiRepository = ZipAPIRepository()
+        apiRepository = APIRepository()
         bag = DisposeBag()
     }
 

@@ -14,7 +14,6 @@ import Foundation
  constantly fetch from the persistent store.
  When the application loads, the caches is populated with the persisted data before
  being replaced with the new web data.
- 
  */
 protocol CacheRepositoryType {
     var cachedStocks: [StockModel] { get }

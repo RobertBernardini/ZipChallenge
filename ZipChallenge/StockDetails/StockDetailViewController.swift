@@ -34,12 +34,12 @@ final class StockDetailViewController: UIViewController {
         stock = viewModel.outputs.stock
         configureUserInterface()
         bindUserInterface()
+        viewModel.inputs.fetchPriceHistory.accept(())
     }
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         viewModel.inputs.startUpdates.accept(())
-        viewModel.inputs.fetchPriceHistory.accept(())
     }
     
     override func viewWillDisappear(_ animated: Bool) {
@@ -79,7 +79,6 @@ final class StockDetailViewController: UIViewController {
                     let priceChartData = PriceChartData(duration: duration, historicalPrices: historicals)
                     self?.priceChartView.displayData = priceChartData
                 case .failure(let error):
-//                    self.viewModel.inputs.fetchCachedStocks.accept(())
                     if let error = error as? URLError, error.code == .notConnectedToInternet {
                         self?.showErrorAlert(error: APIError.internet)
                     }

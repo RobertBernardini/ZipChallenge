@@ -40,15 +40,3 @@ extension DataError: LocalizedError {
         }
     }
 }
-
-enum MemoryError: Error {
-    case nilReference
-}
-
-extension MemoryError: LocalizedError {
-    var errorDescription: String? {
-        switch self {
-        case .nilReference: return "Referencing nil object."
-        }
-    }
-}

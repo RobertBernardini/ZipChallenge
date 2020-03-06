@@ -11,10 +11,10 @@ import RxSwift
 @testable import ZipChallenge
 
 class CacheRepositoryTests: XCTestCase {
-    private var cacheRepository: CacheRepository!
+    private var cacheRepository: CacheRepositoryType!
     
     override func setUp() {
-        cacheRepository = ZipCacheRepository()
+        cacheRepository = CacheRepository()
     }
     
     override func tearDown() {

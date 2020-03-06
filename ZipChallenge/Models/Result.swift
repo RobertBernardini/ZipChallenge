@@ -8,6 +8,9 @@
 
 import Foundation
 
+/*
+ Used to represent the results of the API fetch data functions.
+ */
 enum Result<T, ResultError: Error> {
     case success(T)
     case failure(ResultError)
